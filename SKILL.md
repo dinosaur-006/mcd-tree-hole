@@ -95,9 +95,16 @@ agent_created: true
 
 ### 第 5 步 · 券与试算
 
-1. `query-my-coupons` + `available-coupons` → 取券
-2. `auto-bind-coupons` → 领取可领的券
-3. `calculate-price` → 对最终组合做真实试算，得出实付金额与省下金额
+1. `query-store-coupons`（`storeCode` + `orderType` + `beType`）→ 取**该门店该渠道真正可用**的券
+2. `available-coupons` + `auto-bind-coupons` → 领取可领取的券
+3. 用券商品的 `productCode` **替换掉**组合中的对应普通商品，并携带 `couponId` / `couponCode`
+4. `calculate-price` → 真实试算
+
+**三个必须记住的细节（均实测确认）：**
+
+- **券不是"抵扣"，是"促销商品 SKU"。** 用券的方式是把券对应的商品加进订单，不是从总价里减钱。券有独立的商品编码，不能拿普通商品的编码去套。
+- **不要用 `query-my-coupons` 做主数据源。** 官方说明它不校验门店与下单规则，不承诺可用于当前订单；用它推荐会给出这家店用不了的券。
+- **`calculate-price` 返回的金额单位是"分"**，展示时必须除以 100。返回中的 `enjoyable.balance` 是门槛差额，可用来提示"再差多少能省多少"。
 
 ### 第 6 步 · 输出
 

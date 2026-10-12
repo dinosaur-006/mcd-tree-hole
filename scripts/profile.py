@@ -12,7 +12,7 @@
 用法示例：
     python profile.py show
     python profile.py set --allergy 花生 --no-ice --budget-max 40
-    python profile.py record --saved 11 --items "巨无霸,大薯" --mood 疲惫
+    python profile.py record --saved 13.5 --items "巨无霸,麦香鸡,中薯条买一送一" --mood 疲惫
     python profile.py journal-add "今天上班又白干了"
     python profile.py journal-clear
     python profile.py stats
