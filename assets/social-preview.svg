@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img"
+     aria-label="麦门树洞 — 不管你今天过得怎么样，那一份是不变的">
+  <!--
+    GitHub 社交预览图，1280×640，对应仓库 Settings → Social preview 的比例。
+
+    改完文案后重新出图：python scripts/render_social_preview.py
+
+    刻意用 SVG 精绘再渲染，而不是 AI 生图：图上的中文、金额和拱门形状
+    必须逐字准确 —— 社交卡片上一个错字，比没有这张图更糟。
+
+    注意：本文件是 SVG，XML 注释里不能出现双连字符，所以命令行参数
+    一律不写在这里，统一放在上面的脚本里。
+  -->
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#FFE07A"/>
+      <stop offset="45%"  stop-color="#FFC72C"/>
+      <stop offset="100%" stop-color="#D98E12"/>
+    </linearGradient>
+
+    <radialGradient id="lamp" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#FFC72C" stop-opacity="0.24"/>
+      <stop offset="55%"  stop-color="#FFC72C" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#FFC72C" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#FFC72C" stop-opacity="0.9"/>
+      <stop offset="55%"  stop-color="#FFC72C" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#FFC72C" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="13" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 底色：夜里的黑 -->
+  <rect width="1280" height="640" fill="#121010"/>
+
+  <!-- 灯牌的光 -->
+  <ellipse cx="326" cy="309" rx="540" ry="400" fill="url(#lamp)"/>
+  <ellipse cx="326" cy="309" rx="310" ry="260" fill="url(#lamp)"/>
+
+  <!-- 自绘拱门 -->
+  <g transform="translate(140,178) scale(1.5)">
+    <path d="M25 175 V105 C25 60 55 25 82 25 C108 25 118 62 124 90 C130 62 140 25 166 25 C193 25 223 60 223 105 V175"
+          fill="none" stroke="url(#gold)" stroke-width="26"
+          stroke-linecap="round" stroke-linejoin="round"
+          filter="url(#glow)"/>
+    <!-- 光落在地上 -->
+    <ellipse cx="124" cy="184" rx="120" ry="10" fill="#FFC72C" opacity="0.13"/>
+  </g>
+
+  <!-- 右侧文字 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif'>
+
+    <text x="560" y="176"
+          font-size="82" font-weight="700" fill="#FDFAF3" letter-spacing="3">麦门树洞</text>
+
+    <rect x="564" y="202" width="290" height="3" fill="url(#rule)"/>
+
+    <text x="560" y="258"
+          font-size="26" fill="#B9AFA4" letter-spacing="1">不管你今天过得怎么样，那一份是不变的。</text>
+
+    <!-- 用户的一句话：品牌黄气泡 -->
+    <rect x="560" y="298" width="276" height="52" rx="26" fill="#FFC72C"/>
+    <text x="584" y="331"
+          font-size="21" font-weight="500" fill="#241A08">今天上班又白干了</text>
+
+    <!-- 树洞的回应：放在桌上的一张纸，不是气泡 -->
+    <rect x="560" y="376" width="620" height="136" rx="8" fill="#FDFAF3"/>
+    <rect x="580" y="400" width="4" height="88" rx="2" fill="#FFC72C" opacity="0.85"/>
+
+    <text x="604" y="428" font-size="24" fill="#241A08">白干也是干过了。</text>
+    <text x="604" y="464" font-size="24" fill="#241A08">巨无霸不会问你为什么。</text>
+    <text x="604" y="494" font-size="19" fill="#9A8D80"
+          font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'>巨无霸 + 新地 · 实付 37.50 元</text>
+
+    <text x="560" y="560"
+          font-size="22" fill="#FFC72C" letter-spacing="2">麦当劳 MCP · 对话式点餐 Skill</text>
+
+    <text x="560" y="600"
+          font-size="19" fill="#6E645B" letter-spacing="1">在这里，不点单是一个正常的结局。</text>
+  </g>
+
+  <!-- 底部收边 -->
+  <rect x="0" y="636" width="1280" height="4" fill="#DA291C" opacity="0.7"/>
+</svg>
