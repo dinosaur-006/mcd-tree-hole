@@ -1,0 +1,17 @@
+# 统一换行符，避免 Windows 下产生 CRLF 噪音
+* text=auto eol=lf
+
+*.md   text eol=lf
+*.py   text eol=lf
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+
+# 二进制文件不做换行转换
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.mp4  binary
+*.zip  binary
