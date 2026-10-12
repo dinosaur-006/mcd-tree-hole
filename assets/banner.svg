@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-label="麦门树洞 · 不管你今天过得怎么样，那一份是不变的">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#FFE07A"/>
+      <stop offset="45%"  stop-color="#FFC72C"/>
+      <stop offset="100%" stop-color="#D98E12"/>
+    </linearGradient>
+
+    <radialGradient id="lamp" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#FFC72C" stop-opacity="0.22"/>
+      <stop offset="55%"  stop-color="#FFC72C" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#FFC72C" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#FFC72C" stop-opacity="0.9"/>
+      <stop offset="55%"  stop-color="#FFC72C" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#FFC72C" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="13" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 底色：夜里的黑 -->
+  <rect width="1280" height="400" fill="#121010"/>
+
+  <!-- 灯牌的光 -->
+  <ellipse cx="264" cy="192" rx="440" ry="320" fill="url(#lamp)"/>
+  <ellipse cx="264" cy="192" rx="250" ry="200" fill="url(#lamp)"/>
+
+  <!-- 自绘拱门 -->
+  <g transform="translate(140,88)">
+    <path d="M25 175 V105 C25 60 55 25 82 25 C108 25 118 62 124 90 C130 62 140 25 166 25 C193 25 223 60 223 105 V175"
+          fill="none" stroke="url(#gold)" stroke-width="26"
+          stroke-linecap="round" stroke-linejoin="round"
+          filter="url(#glow)"/>
+    <!-- 光落在地上 -->
+    <ellipse cx="124" cy="184" rx="120" ry="10" fill="#FFC72C" opacity="0.13"/>
+  </g>
+
+  <!-- 文字 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif'>
+
+    <text x="468" y="178"
+          font-size="66" font-weight="700" fill="#FDFAF3" letter-spacing="3">麦门树洞</text>
+
+    <rect x="470" y="204" width="330" height="2" fill="url(#rule)"/>
+
+    <text x="468" y="256"
+          font-size="27" fill="#B9AFA4" letter-spacing="1">不管你今天过得怎么样，那一份是不变的。</text>
+
+    <text x="468" y="308"
+          font-size="19" fill="#FFC72C" letter-spacing="2">麦当劳 MCP · 对话式点餐 Skill</text>
+
+    <text x="468" y="342"
+          font-size="17" fill="#6E645B" letter-spacing="1">在这里，不点单是一个正常的结局。</text>
+  </g>
+
+  <!-- 底部收边 -->
+  <rect x="0" y="396" width="1280" height="4" fill="#DA291C" opacity="0.7"/>
+</svg>

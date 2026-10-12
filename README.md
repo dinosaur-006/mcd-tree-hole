@@ -1,6 +1,6 @@
 # 麦门树洞 · MCD Tree Hole
 
-> 不管你今天过得怎么样，麦当劳那一份是不变的。
+<img src="assets/banner.svg" alt="麦门树洞 — 不管你今天过得怎么样，那一份是不变的" width="100%">
 
 一个基于**麦当劳 MCP** 的对话式 Skill。
 
