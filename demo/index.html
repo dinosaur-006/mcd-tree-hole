@@ -3,24 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>麦门树洞 · 不管你今天过得怎么样，麦当劳那一份是不变的</title>
+<title>麦门树洞 · 不管你今天过得怎么样，那一份是不变的</title>
 <style>
   :root {
-    --paper:      #FBF8F3;
-    --paper-2:    #F5EFE5;
-    --card:       #FFFFFF;
-    --ink:        #2A2118;
-    --ink-2:      #6B5D4D;
-    --ink-3:      #A2947F;
-    --line:       #EAE1D2;
-    --amber:      #C8871B;
-    --amber-soft: #F6E9D2;
-    --red:        #D8291C;
+    --night:      #121010;
+    --night-2:    #1A1715;
+    --night-3:    #241F1A;
+    --night-line: rgba(255, 236, 200, .10);
+
+    --gold:       #FFC72C;
+    --gold-deep:  #E39B1B;
+    --red:        #DA291C;
+
+    --cream:      #FDFAF3;
+    --cream-2:    #F6F0E4;
+    --on-cream:   #241E18;
+    --on-cream-2: #6E6153;
+    --on-cream-3: #A0937F;
+    --cream-line: #EBE1CF;
+
+    --on-dark:    #F4EDE1;
+    --on-dark-2:  #A2957F;
+    --on-dark-3:  #6E6355;
 
     --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, sans-serif;
     --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
 
-    --shadow: 0 1px 2px rgba(42, 33, 24, .04), 0 8px 24px -12px rgba(42, 33, 24, .16);
+    --lamp: 0 0 90px rgba(255, 199, 44, .20);
   }
 
   * { box-sizing: border-box; }
@@ -29,241 +38,303 @@
 
   body {
     margin: 0;
-    background: var(--paper);
-    color: var(--ink);
+    background: var(--night);
+    color: var(--on-dark);
     font-family: var(--sans);
     font-size: 16px;
     line-height: 1.75;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
 
-  .wrap { max-width: 680px; margin: 0 auto; padding: 0 24px; }
+  /* 夜里那盏灯 */
+  .lamp {
+    position: fixed;
+    inset: -20vh -20vw auto -20vw;
+    height: 120vh;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(46% 34% at 50% 12%, rgba(255, 199, 44, .16), transparent 68%),
+      radial-gradient(30% 24% at 52% 4%,  rgba(218, 41, 28, .10), transparent 70%);
+  }
 
-  /* ---------- 顶部 ---------- */
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 26px;
+  }
+
+  /* ================= 顶部 ================= */
 
   header {
-    padding: 88px 0 64px;
-    border-bottom: 1px solid var(--line);
+    padding: 96px 0 84px;
+    position: relative;
   }
 
-  .mark {
+  .wordmark {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    letter-spacing: .14em;
-    color: var(--ink-3);
-    text-transform: uppercase;
+    gap: 9px;
+    font-size: 12px;
+    letter-spacing: .22em;
+    color: var(--on-dark-2);
   }
 
-  .mark::before {
-    content: "";
-    width: 6px; height: 6px;
+  .wordmark .dot {
+    width: 7px; height: 7px;
     border-radius: 50%;
     background: var(--red);
+    box-shadow: 0 0 12px rgba(218, 41, 28, .8);
+  }
+
+  .arches {
+    display: block;
+    width: 108px;
+    height: auto;
+    margin: 34px 0 0 -6px;
+    filter: drop-shadow(0 0 34px rgba(255, 199, 44, .42));
   }
 
   h1 {
-    margin: 20px 0 0;
-    font-size: 40px;
-    line-height: 1.25;
+    margin: 38px 0 0;
+    font-size: 45px;
+    line-height: 1.24;
     font-weight: 600;
-    letter-spacing: -.02em;
+    letter-spacing: -.025em;
+    color: #fff;
+    max-width: 15em;
   }
+
+  h1 .lit { color: var(--gold); }
 
   .tagline {
-    margin: 22px 0 0;
-    font-size: 19px;
-    line-height: 1.7;
-    color: var(--ink-2);
-    max-width: 30em;
+    margin: 26px 0 0;
+    font-size: 18px;
+    line-height: 1.8;
+    color: var(--on-dark-2);
+    max-width: 26em;
   }
 
-  .tagline strong { color: var(--ink); font-weight: 500; }
+  .caveat {
+    margin: 40px 0 0;
+    padding-left: 20px;
+    border-left: 2px solid var(--red);
+    font-size: 15px;
+    color: var(--on-dark);
+  }
 
-  /* ---------- 场景 ---------- */
+  /* ================= 场景 ================= */
 
-  .scene { padding: 64px 0; border-bottom: 1px solid var(--line); }
-
-  .scene:last-of-type { border-bottom: none; }
+  .scene {
+    padding: 78px 0;
+    border-top: 1px solid var(--night-line);
+  }
 
   .scene-label {
     display: flex;
     align-items: baseline;
-    gap: 12px;
-    margin-bottom: 36px;
+    gap: 14px;
+    margin-bottom: 40px;
   }
 
   .scene-no {
     font-family: var(--mono);
-    font-size: 12px;
-    color: var(--amber);
-    letter-spacing: .08em;
+    font-size: 11px;
+    letter-spacing: .1em;
+    color: var(--night);
+    background: var(--gold);
+    padding: 3px 7px;
+    border-radius: 3px;
+    font-weight: 700;
   }
 
-  .scene-name { font-size: 15px; color: var(--ink-2); }
+  .scene-name { font-size: 15px; color: var(--on-dark); letter-spacing: .01em; }
 
   .scene-note {
     margin-left: auto;
     font-size: 13px;
-    color: var(--ink-3);
+    color: var(--on-dark-3);
     text-align: right;
   }
 
-  /* ---------- 对话：用户有气泡，树洞没有 ---------- */
+  .turn + .turn { margin-top: 46px; }
 
-  .turn + .turn { margin-top: 40px; }
-
-  .me {
-    display: flex;
-    justify-content: flex-end;
-  }
+  /* 用户有气泡 —— 品牌黄 */
+  .me { display: flex; justify-content: flex-end; }
 
   .me span {
     display: inline-block;
-    max-width: 78%;
-    padding: 11px 18px;
-    background: var(--red);
-    color: #fff;
-    border-radius: 18px 18px 4px 18px;
+    max-width: 80%;
+    padding: 12px 19px;
+    background: var(--gold);
+    color: #1F1A14;
+    border-radius: 18px 18px 5px 18px;
     font-size: 15.5px;
     line-height: 1.6;
+    font-weight: 500;
+    box-shadow: 0 6px 26px -10px rgba(255, 199, 44, .55);
   }
 
-  .it {
-    border-left: 2px solid var(--amber);
-    padding: 2px 0 2px 22px;
-    margin-top: 22px;
+  /* 树洞没有气泡 —— 只是一张放在桌上的纸 */
+  .paper {
+    margin-top: 24px;
+    background: var(--cream);
+    color: var(--on-cream);
+    border-radius: 14px;
+    padding: 26px 28px;
+    box-shadow: 0 26px 60px -34px rgba(0, 0, 0, .95), 0 2px 0 rgba(255, 255, 255, .04);
+    position: relative;
+    overflow: hidden;
   }
 
-  .it .say {
-    font-size: 19px;
-    line-height: 1.85;
-    letter-spacing: .01em;
-    color: var(--ink);
+  .paper::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+  }
+
+  .paper .say {
     margin: 0;
+    font-size: 20px;
+    line-height: 1.8;
+    letter-spacing: .005em;
+    color: var(--on-cream);
+    font-weight: 500;
   }
 
-  .it .say.plain { color: var(--ink-2); font-size: 17px; }
+  .paper .say.plain {
+    font-size: 16.5px;
+    font-weight: 400;
+    color: var(--on-cream-2);
+  }
 
-  .it .meta {
-    margin-top: 8px;
+  .paper .meta {
+    margin: 10px 0 0;
     font-size: 13px;
-    color: var(--ink-3);
-    letter-spacing: .02em;
+    color: var(--on-cream-3);
+    line-height: 1.7;
   }
 
-  /* ---------- 账单：等宽 + 虚线 ---------- */
-
+  /* 账单 —— 等宽、虚线 */
   .receipt {
-    margin-top: 26px;
-    max-width: 340px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 18px 20px 16px;
-    box-shadow: var(--shadow);
+    margin-top: 22px;
+    background: #fff;
+    border: 1px solid var(--cream-line);
+    border-radius: 9px;
+    padding: 16px 18px 14px;
     font-family: var(--mono);
-    font-size: 13.5px;
-    line-height: 2;
-    color: var(--ink-2);
+    font-size: 13px;
+    line-height: 2.05;
+    color: var(--on-cream-2);
     font-variant-numeric: tabular-nums;
   }
 
-  .receipt .row {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-  }
-
-  .receipt .row .q { color: var(--ink-3); }
+  .receipt .row { display: flex; justify-content: space-between; gap: 16px; }
+  .receipt .row .q { color: var(--on-cream-3); }
 
   .receipt .cut {
-    margin: 12px 0;
-    border-top: 1px dashed var(--line);
+    margin: 11px 0;
+    border-top: 1px dashed var(--cream-line);
   }
 
-  .receipt .row.sum { color: var(--ink); }
+  .receipt .row.sum { color: var(--on-cream); }
+  .receipt .row.sum .v { font-weight: 700; }
+  .receipt .row.save .v { color: #B8720E; font-weight: 700; }
 
-  .receipt .row.sum .v { font-weight: 600; }
-
-  .receipt .row.save .v { color: var(--amber); font-weight: 600; }
-
-  /* ---------- 不点单：没有账单 ---------- */
-
+  /* 不点单 —— 没有账单 */
   .quiet {
-    margin-top: 22px;
-    padding: 20px 22px;
-    background: var(--paper-2);
-    border-radius: 10px;
-    font-size: 15px;
-    color: var(--ink-2);
+    margin-top: 20px;
+    padding: 18px 20px;
+    background: var(--cream-2);
+    border-left: 1px dashed var(--cream-line);
+    border-radius: 0 9px 9px 0;
+    font-size: 14.5px;
+    line-height: 1.85;
+    color: var(--on-cream-2);
   }
 
-  .quiet em { font-style: normal; color: var(--ink-3); }
+  .quiet em { font-style: normal; color: var(--on-cream-3); }
 
-  /* ---------- 机制 ---------- */
+  /* ================= 机制 ================= */
 
-  .mech { padding: 72px 0; border-top: 1px solid var(--line); }
+  .mech {
+    padding: 78px 0;
+    border-top: 1px solid var(--night-line);
+  }
 
   h2 {
-    margin: 0 0 28px;
-    font-size: 22px;
+    margin: 0 0 30px;
+    font-size: 25px;
     font-weight: 600;
-    letter-spacing: -.01em;
+    letter-spacing: -.02em;
+    color: #fff;
   }
 
   .chain {
     font-family: var(--mono);
-    font-size: 13px;
-    line-height: 2.3;
-    color: var(--ink-2);
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 22px 24px;
+    font-size: 12.5px;
+    line-height: 2.35;
+    color: var(--on-dark-2);
+    background: var(--night-2);
+    border: 1px solid var(--night-line);
+    border-radius: 12px;
+    padding: 24px 26px;
     overflow-x: auto;
     white-space: pre;
     font-variant-numeric: tabular-nums;
   }
 
-  .chain b { color: var(--ink); font-weight: 600; }
-  .chain i { font-style: normal; color: var(--amber); }
+  .chain b { color: var(--gold); font-weight: 700; }
+  .chain i { font-style: normal; color: var(--on-dark); }
 
-  .points { margin: 32px 0 0; padding: 0; list-style: none; }
+  .points { margin: 34px 0 0; padding: 0; list-style: none; }
 
   .points li {
-    padding: 18px 0;
-    border-top: 1px solid var(--line);
+    padding: 20px 0;
+    border-top: 1px solid var(--night-line);
     font-size: 15px;
-    color: var(--ink-2);
+    line-height: 1.8;
+    color: var(--on-dark-2);
   }
 
-  .points li:first-child { border-top: none; }
-  .points strong { color: var(--ink); font-weight: 500; }
+  .points li:first-child { border-top: none; padding-top: 0; }
+  .points strong { color: var(--on-dark); font-weight: 500; }
 
-  /* ---------- 页脚 ---------- */
+  /* ================= 页脚 ================= */
 
   footer {
-    padding: 56px 0 80px;
-    border-top: 1px solid var(--line);
-    font-size: 13px;
+    padding: 64px 0 96px;
+    border-top: 1px solid var(--night-line);
+    font-size: 12.5px;
     line-height: 2;
-    color: var(--ink-3);
+    color: var(--on-dark-3);
   }
 
-  footer a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line); }
-  footer a:hover { border-bottom-color: var(--amber); }
+  footer a {
+    color: var(--on-dark-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--night-line);
+    transition: color .2s, border-color .2s;
+  }
 
-  /* ---------- 入场 ---------- */
+  footer a:hover { color: var(--gold); border-bottom-color: var(--gold); }
 
-  .reveal { opacity: 0; transform: translateY(14px); }
+  .foot-arches { width: 34px; margin-bottom: 22px; opacity: .3; }
+
+  /* ================= 入场 ================= */
+
+  .reveal { opacity: 0; transform: translateY(18px); }
 
   .reveal.in {
     opacity: 1;
     transform: none;
-    transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+    transition: opacity .85s cubic-bezier(.22,.61,.36,1), transform .85s cubic-bezier(.22,.61,.36,1);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -272,23 +343,48 @@
   }
 
   @media (max-width: 560px) {
-    header { padding: 60px 0 44px; }
-    h1 { font-size: 31px; }
-    .tagline { font-size: 17px; }
-    .scene { padding: 48px 0; }
-    .it .say { font-size: 17px; }
+    header { padding: 64px 0 56px; }
+    h1 { font-size: 32px; }
+    .tagline { font-size: 16.5px; }
+    .arches { width: 82px; }
+    .scene, .mech { padding: 56px 0; }
+    .paper { padding: 22px 20px; border-radius: 12px; }
+    .paper .say { font-size: 17.5px; }
     .scene-note { display: none; }
+    h2 { font-size: 21px; }
   }
 </style>
 </head>
 <body>
 
+<div class="lamp" aria-hidden="true"></div>
+
 <div class="wrap">
 
   <header class="reveal">
-    <div class="mark">麦门树洞</div>
-    <h1>你说一句，它回你一句，<br>再给你一份算好价的搭配。</h1>
-    <p class="tagline">也可以什么都<strong>不给</strong>。<br>在这里，不点单是一个正常的结局。</p>
+    <div class="wordmark"><span class="dot"></span>麦门树洞</div>
+
+    <svg class="arches" viewBox="0 0 240 200" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#FFDA5C"/>
+          <stop offset="55%"  stop-color="#FFC72C"/>
+          <stop offset="100%" stop-color="#E39B1B"/>
+        </linearGradient>
+      </defs>
+      <path d="M24 176 C24 58 56 26 76 26 C100 26 108 72 120 106 C132 72 140 26 164 26 C184 26 216 58 216 176"
+            stroke="url(#gold)" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <h1>不管你今天过得怎么样，<br><span class="lit">那一份是不变的。</span></h1>
+
+    <p class="tagline">
+      你说一句，它回你一句，再给你一份已算好价、券也用尽的搭配。
+    </p>
+
+    <p class="caveat">
+      也可以什么都不给。<strong>在这里，不点单是一个正常的结局。</strong>
+    </p>
   </header>
 
   <!-- 场景一 -->
@@ -301,17 +397,19 @@
 
     <div class="turn me"><span>来一份，两个人吃，预算 60</span></div>
 
-    <div class="turn it">
-      <p class="say plain">看一眼今天的。</p>
-      <div class="receipt">
-        <div class="row"><span>巨无霸</span><span class="q">×1</span></div>
-        <div class="row"><span>双层吉士汉堡</span><span class="q">×1</span></div>
-        <div class="row"><span>中薯</span><span class="q">×1</span></div>
-        <div class="row"><span>可乐中杯</span><span class="q">×2</span></div>
-        <div class="cut"></div>
-        <div class="row sum"><span>实付</span><span class="v">58 元</span></div>
-        <div class="row"><span>已用券</span><span class="q">2 张</span></div>
-        <div class="row save"><span>省下</span><span class="v">13 元</span></div>
+    <div class="turn">
+      <div class="paper">
+        <p class="say plain">看一眼今天的。</p>
+        <div class="receipt">
+          <div class="row"><span>巨无霸</span><span class="q">×1</span></div>
+          <div class="row"><span>双层吉士汉堡</span><span class="q">×1</span></div>
+          <div class="row"><span>中薯</span><span class="q">×1</span></div>
+          <div class="row"><span>可乐中杯</span><span class="q">×2</span></div>
+          <div class="cut"></div>
+          <div class="row sum"><span>实付</span><span class="v">58 元</span></div>
+          <div class="row"><span>已用券</span><span class="q">2 张</span></div>
+          <div class="row save"><span>省下</span><span class="v">13 元</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -326,30 +424,34 @@
 
     <div class="turn me"><span>今天上班又白干了</span></div>
 
-    <div class="turn it">
-      <p class="say">白干也是干过了。<br>巨无霸不会问你为什么。</p>
-      <p class="meta">它没有问你"怎么了"，也没有让你想开点。</p>
-      <div class="receipt">
-        <div class="row"><span>巨无霸</span><span class="q">×1</span></div>
-        <div class="row"><span>大薯</span><span class="q">×1</span></div>
-        <div class="cut"></div>
-        <div class="row sum"><span>实付</span><span class="v">26 元</span></div>
-        <div class="row save"><span>省下</span><span class="v">11 元</span></div>
+    <div class="turn">
+      <div class="paper">
+        <p class="say">白干也是干过了。<br>巨无霸不会问你为什么。</p>
+        <p class="meta">它没有问你「怎么了」，也没有让你想开点。</p>
+        <div class="receipt">
+          <div class="row"><span>巨无霸</span><span class="q">×1</span></div>
+          <div class="row"><span>大薯</span><span class="q">×1</span></div>
+          <div class="cut"></div>
+          <div class="row sum"><span>实付</span><span class="v">26 元</span></div>
+          <div class="row save"><span>省下</span><span class="v">11 元</span></div>
+        </div>
       </div>
     </div>
 
     <div class="turn me"><span>我不吃冰的</span></div>
 
-    <div class="turn it">
-      <p class="say plain">换成香芋派，热的。</p>
-      <p class="meta">不是重新推荐——是"要被安抚"这条链往下走了一格。</p>
-      <div class="receipt">
-        <div class="row"><span>巨无霸</span><span class="q">×1</span></div>
-        <div class="row"><span>香芋派</span><span class="q">×1</span></div>
-        <div class="row"><span>中薯</span><span class="q">×1</span></div>
-        <div class="cut"></div>
-        <div class="row sum"><span>实付</span><span class="v">27 元</span></div>
-        <div class="row save"><span>省下</span><span class="v">10 元</span></div>
+    <div class="turn">
+      <div class="paper">
+        <p class="say plain">换成香芋派，热的。</p>
+        <p class="meta">不是重新推荐 —— 是「要被安抚」这条链往下走了一格。</p>
+        <div class="receipt">
+          <div class="row"><span>巨无霸</span><span class="q">×1</span></div>
+          <div class="row"><span>香芋派</span><span class="q">×1</span></div>
+          <div class="row"><span>中薯</span><span class="q">×1</span></div>
+          <div class="cut"></div>
+          <div class="row sum"><span>实付</span><span class="v">27 元</span></div>
+          <div class="row save"><span>省下</span><span class="v">10 元</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -364,11 +466,13 @@
 
     <div class="turn me"><span>算了，我就是想说说</span></div>
 
-    <div class="turn it">
-      <p class="say">行，记下了。<br>今天不用吃什么。</p>
-      <div class="quiet">
-        没有商品，没有优惠券，没有"再看看这些"。<br>
-        <em>一个总在最后推你下单的地方，用户三天就会看穿。</em>
+    <div class="turn">
+      <div class="paper">
+        <p class="say">行，记下了。<br>今天不用吃什么。</p>
+        <div class="quiet">
+          没有商品，没有优惠券，没有「再看看这些」。<br>
+          <em>一个总在最后推你下单的地方，用户三天就会看穿。</em>
+        </div>
       </div>
     </div>
   </section>
@@ -377,7 +481,7 @@
   <section class="mech reveal">
     <h2>答案不是选出来的，是过滤出来的</h2>
 
-    <div class="chain"><b>候选池</b>  该门店 · 该时段 · 全部在售
+    <div class="chain"><b>候选池</b>   该门店 · 该时段 · 全部在售
   ↓
 <i>第一层</i>  硬约束剔除 —— 过敏 / 忌口 / 宗教饮食 / 不吃冰 / 控糖控钠 / 预算 / 供餐时段
   ↓
@@ -388,14 +492,18 @@
 <b>一份不用再做选择的答案</b></div>
 
     <ul class="points">
-      <li><strong>硬约束只剔除，不参与打分。</strong>"不吃牛肉"不能和"口味偏咸"放进同一个函数里权衡——那是拿安全做取舍。</li>
-      <li><strong>降级链有"认输"出口。</strong>走到头还是无解，它会直接说今天给不了，而不是硬塞一个不合适的东西。</li>
+      <li><strong>硬约束只剔除，不参与打分。</strong>「不吃牛肉」不能和「口味偏咸」放进同一个函数里权衡 —— 那是拿安全做取舍。</li>
+      <li><strong>降级链有「认输」出口。</strong>走到头还是无解，它会直接说今天给不了，而不是硬塞一个不合适的东西。</li>
       <li><strong>情绪不贴标签。</strong>识别不确定时，回到你的原话和一句中性回应，不猜。</li>
-      <li><strong>账本和你说过的话，只存在你自己的电脑上。</strong>不是我们保证不看——是我们看不到。</li>
+      <li><strong>账本和你说过的话，只存在你自己的电脑上。</strong>不是我们保证不看 —— 是我们看不到。</li>
     </ul>
   </section>
 
   <footer class="reveal">
+    <svg class="foot-arches" viewBox="0 0 240 200" fill="none" aria-hidden="true">
+      <path d="M24 176 C24 58 56 26 76 26 C100 26 108 72 120 106 C132 72 140 26 164 26 C184 26 216 58 216 176"
+            stroke="#FFC72C" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
     麦门树洞 · 基于麦当劳 MCP 的对话式点餐 Skill<br>
     麦当劳程序员节创意开发大赛参赛作品，由参赛者独立开发，非麦当劳官方产品。<br>
     输出仅供参考，不构成医疗、营养或其他专业建议；餐品信息、价格及供应状态以麦当劳官方渠道的实时结果为准。<br><br>
