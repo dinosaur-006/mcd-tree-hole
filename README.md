@@ -144,7 +144,7 @@
 ### 3. 安装本 Skill
 
 ```bash
-git clone https://github.com/<你的账号>/mcd-tree-hole.git
+git clone https://github.com/dinosaur-006/mcd-tree-hole.git
 cp -r mcd-tree-hole ~/.workbuddy/skills/mcd-tree-hole
 ```
 
