@@ -122,6 +122,20 @@ def create_repo() -> None:
     ok("仓库已创建")
 
 
+def share_credentials_with_git() -> None:
+    """让 git 复用 gh 的登录状态。
+
+    gh 的登录和 git 的凭据助手是两套东西：gh 登录了，不代表 `git push`
+    能拿到凭据——它可能弹一个认证窗口，在自动化里就会卡死。这一步在
+    两者之间搭个桥。
+    """
+    result = run(["gh", "auth", "setup-git"], check=False)
+    if result.returncode == 0:
+        ok("git 已复用 gh 的凭据（推送不会弹认证窗口）")
+    else:
+        info("gh auth setup-git 没成功，推送时可能需要你手动认证一次")
+
+
 def ensure_remote() -> None:
     current = run(["git", "remote", "get-url", "origin"], check=False)
     want = f"https://github.com/{FULL}.git"
@@ -153,12 +167,26 @@ def add_topics() -> None:
     ok("已设置仓库话题：" + "、".join(TOPICS))
 
 
-def verify() -> None:
+def verify(branch: str) -> None:
+    """真去看一眼远端：本地 HEAD 和远端分支必须是同一个提交。"""
+    local = run(["git", "rev-parse", "HEAD"]).stdout.strip()
+    remote = run(["git", "rev-parse", f"origin/{branch}"], check=False)
+
     view = run(["gh", "repo", "view", FULL,
                 "--json", "url,visibility,defaultBranchRef"])
     print()
     print("  远端状态：")
     print("    " + view.stdout.strip().replace("\n", "\n    "))
+
+    if remote.returncode != 0:
+        raise Fail(f"远端读不到 origin/{branch}，推送可能没有生效。")
+    if remote.stdout.strip() != local:
+        raise Fail(
+            f"远端 {branch} 的提交是 {remote.stdout.strip()[:8]}，"
+            f"本地是 {local[:8]}，两者不一致。"
+        )
+    print()
+    ok(f"校验通过：远端 {branch} 与本地 HEAD 一致（{local[:8]}）")
 
 
 # ----------------------------------------------------------------------
@@ -195,10 +223,11 @@ def main() -> int:
     print("开始发布：")
     try:
         create_repo()
+        share_credentials_with_git()
         ensure_remote()
         push(branch)
         add_topics()
-        verify()
+        verify(branch)
     except subprocess.CalledProcessError as exc:
         print()
         print(f"[失败] 命令返回非零：{' '.join(exc.cmd)}")
