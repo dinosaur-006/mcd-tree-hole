@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>麦门树洞 · 不管你今天过得怎么样，麦当劳那一份是不变的</title>
+<style>
+  :root {
+    --paper:      #FBF8F3;
+    --paper-2:    #F5EFE5;
+    --card:       #FFFFFF;
+    --ink:        #2A2118;
+    --ink-2:      #6B5D4D;
+    --ink-3:      #A2947F;
+    --line:       #EAE1D2;
+    --amber:      #C8871B;
+    --amber-soft: #F6E9D2;
+    --red:        #D8291C;
+
+    --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+
+    --shadow: 0 1px 2px rgba(42, 33, 24, .04), 0 8px 24px -12px rgba(42, 33, 24, .16);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- 顶部 ---------- */
+
+  header {
+    padding: 88px 0 64px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    letter-spacing: .14em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+  }
+
+  .mark::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+  }
+
+  h1 {
+    margin: 20px 0 0;
+    font-size: 40px;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -.02em;
+  }
+
+  .tagline {
+    margin: 22px 0 0;
+    font-size: 19px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    max-width: 30em;
+  }
+
+  .tagline strong { color: var(--ink); font-weight: 500; }
+
+  /* ---------- 场景 ---------- */
+
+  .scene { padding: 64px 0; border-bottom: 1px solid var(--line); }
+
+  .scene:last-of-type { border-bottom: none; }
+
+  .scene-label {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+
+  .scene-no {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--amber);
+    letter-spacing: .08em;
+  }
+
+  .scene-name { font-size: 15px; color: var(--ink-2); }
+
+  .scene-note {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--ink-3);
+    text-align: right;
+  }
+
+  /* ---------- 对话：用户有气泡，树洞没有 ---------- */
+
+  .turn + .turn { margin-top: 40px; }
+
+  .me {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .me span {
+    display: inline-block;
+    max-width: 78%;
+    padding: 11px 18px;
+    background: var(--red);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+    font-size: 15.5px;
+    line-height: 1.6;
+  }
+
+  .it {
+    border-left: 2px solid var(--amber);
+    padding: 2px 0 2px 22px;
+    margin-top: 22px;
+  }
+
+  .it .say {
+    font-size: 19px;
+    line-height: 1.85;
+    letter-spacing: .01em;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .it .say.plain { color: var(--ink-2); font-size: 17px; }
+
+  .it .meta {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--ink-3);
+    letter-spacing: .02em;
+  }
+
+  /* ---------- 账单：等宽 + 虚线 ---------- */
+
+  .receipt {
+    margin-top: 26px;
+    max-width: 340px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px 16px;
+    box-shadow: var(--shadow);
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 2;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .receipt .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .receipt .row .q { color: var(--ink-3); }
+
+  .receipt .cut {
+    margin: 12px 0;
+    border-top: 1px dashed var(--line);
+  }
+
+  .receipt .row.sum { color: var(--ink); }
+
+  .receipt .row.sum .v { font-weight: 600; }
+
+  .receipt .row.save .v { color: var(--amber); font-weight: 600; }
+
+  /* ---------- 不点单：没有账单 ---------- */
+
+  .quiet {
+    margin-top: 22px;
+    padding: 20px 22px;
+    background: var(--paper-2);
+    border-radius: 10px;
+    font-size: 15px;
+    color: var(--ink-2);
+  }
+
+  .quiet em { font-style: normal; color: var(--ink-3); }
+
+  /* ---------- 机制 ---------- */
+
+  .mech { padding: 72px 0; border-top: 1px solid var(--line); }
+
+  h2 {
+    margin: 0 0 28px;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+  }
+
+  .chain {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 2.3;
+    color: var(--ink-2);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px 24px;
+    overflow-x: auto;
+    white-space: pre;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chain b { color: var(--ink); font-weight: 600; }
+  .chain i { font-style: normal; color: var(--amber); }
+
+  .points { margin: 32px 0 0; padding: 0; list-style: none; }
+
+  .points li {
+    padding: 18px 0;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--ink-2);
+  }
+
+  .points li:first-child { border-top: none; }
+  .points strong { color: var(--ink); font-weight: 500; }
+
+  /* ---------- 页脚 ---------- */
+
+  footer {
+    padding: 56px 0 80px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    line-height: 2;
+    color: var(--ink-3);
+  }
+
+  footer a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line); }
+  footer a:hover { border-bottom-color: var(--amber); }
+
+  /* ---------- 入场 ---------- */
+
+  .reveal { opacity: 0; transform: translateY(14px); }
+
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+    transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; }
+    .reveal.in { transition: none; }
+  }
+
+  @media (max-width: 560px) {
+    header { padding: 60px 0 44px; }
+    h1 { font-size: 31px; }
+    .tagline { font-size: 17px; }
+    .scene { padding: 48px 0; }
+    .it .say { font-size: 17px; }
+    .scene-note { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="reveal">
+    <div class="mark">麦门树洞</div>
+    <h1>你说一句，它回你一句，<br>再给你一份算好价的搭配。</h1>
+    <p class="tagline">也可以什么都<strong>不给</strong>。<br>在这里，不点单是一个正常的结局。</p>
+  </header>
+
+  <!-- 场景一 -->
+  <section class="scene reveal">
+    <div class="scene-label">
+      <span class="scene-no">01</span>
+      <span class="scene-name">只是想吃饭</span>
+      <span class="scene-note">全程没有做过选择</span>
+    </div>
+
+    <div class="turn me"><span>来一份，两个人吃，预算 60</span></div>
+
+    <div class="turn it">
+      <p class="say plain">看一眼今天的。</p>
+      <div class="receipt">
+        <div class="row"><span>巨无霸</span><span class="q">×1</span></div>
+        <div class="row"><span>双层吉士汉堡</span><span class="q">×1</span></div>
+        <div class="row"><span>中薯</span><span class="q">×1</span></div>
+        <div class="row"><span>可乐中杯</span><span class="q">×2</span></div>
+        <div class="cut"></div>
+        <div class="row sum"><span>实付</span><span class="v">58 元</span></div>
+        <div class="row"><span>已用券</span><span class="q">2 张</span></div>
+        <div class="row save"><span>省下</span><span class="v">13 元</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 场景二 -->
+  <section class="scene reveal">
+    <div class="scene-label">
+      <span class="scene-no">02</span>
+      <span class="scene-name">今天不太好过</span>
+      <span class="scene-note">同一条降级链，往下走一格</span>
+    </div>
+
+    <div class="turn me"><span>今天上班又白干了</span></div>
+
+    <div class="turn it">
+      <p class="say">白干也是干过了。<br>巨无霸不会问你为什么。</p>
+      <p class="meta">它没有问你"怎么了"，也没有让你想开点。</p>
+      <div class="receipt">
+        <div class="row"><span>巨无霸</span><span class="q">×1</span></div>
+        <div class="row"><span>大薯</span><span class="q">×1</span></div>
+        <div class="cut"></div>
+        <div class="row sum"><span>实付</span><span class="v">26 元</span></div>
+        <div class="row save"><span>省下</span><span class="v">11 元</span></div>
+      </div>
+    </div>
+
+    <div class="turn me"><span>我不吃冰的</span></div>
+
+    <div class="turn it">
+      <p class="say plain">换成香芋派，热的。</p>
+      <p class="meta">不是重新推荐——是"要被安抚"这条链往下走了一格。</p>
+      <div class="receipt">
+        <div class="row"><span>巨无霸</span><span class="q">×1</span></div>
+        <div class="row"><span>香芋派</span><span class="q">×1</span></div>
+        <div class="row"><span>中薯</span><span class="q">×1</span></div>
+        <div class="cut"></div>
+        <div class="row sum"><span>实付</span><span class="v">27 元</span></div>
+        <div class="row save"><span>省下</span><span class="v">10 元</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 场景三 -->
+  <section class="scene reveal">
+    <div class="scene-label">
+      <span class="scene-no">03</span>
+      <span class="scene-name">说完话但不想吃</span>
+      <span class="scene-note">这里最重要的一个结局</span>
+    </div>
+
+    <div class="turn me"><span>算了，我就是想说说</span></div>
+
+    <div class="turn it">
+      <p class="say">行，记下了。<br>今天不用吃什么。</p>
+      <div class="quiet">
+        没有商品，没有优惠券，没有"再看看这些"。<br>
+        <em>一个总在最后推你下单的地方，用户三天就会看穿。</em>
+      </div>
+    </div>
+  </section>
+
+  <!-- 机制 -->
+  <section class="mech reveal">
+    <h2>答案不是选出来的，是过滤出来的</h2>
+
+    <div class="chain"><b>候选池</b>  该门店 · 该时段 · 全部在售
+  ↓
+<i>第一层</i>  硬约束剔除 —— 过敏 / 忌口 / 宗教饮食 / 不吃冰 / 控糖控钠 / 预算 / 供餐时段
+  ↓
+<i>第二层</i>  软偏好排序 —— 口味 / 份量人数 / 热量目标 / 历史复购去重
+  ↓
+<i>第三层</i>  安全兜底降级 —— 孕产 / 生病 / 服药 / 重度情绪表述
+  ↓
+<b>一份不用再做选择的答案</b></div>
+
+    <ul class="points">
+      <li><strong>硬约束只剔除，不参与打分。</strong>"不吃牛肉"不能和"口味偏咸"放进同一个函数里权衡——那是拿安全做取舍。</li>
+      <li><strong>降级链有"认输"出口。</strong>走到头还是无解，它会直接说今天给不了，而不是硬塞一个不合适的东西。</li>
+      <li><strong>情绪不贴标签。</strong>识别不确定时，回到你的原话和一句中性回应，不猜。</li>
+      <li><strong>账本和你说过的话，只存在你自己的电脑上。</strong>不是我们保证不看——是我们看不到。</li>
+    </ul>
+  </section>
+
+  <footer class="reveal">
+    麦门树洞 · 基于麦当劳 MCP 的对话式点餐 Skill<br>
+    麦当劳程序员节创意开发大赛参赛作品，由参赛者独立开发，非麦当劳官方产品。<br>
+    输出仅供参考，不构成医疗、营养或其他专业建议；餐品信息、价格及供应状态以麦当劳官方渠道的实时结果为准。<br><br>
+    <a href="../README.md">项目说明</a> ·
+    <a href="../MCP_INTEGRATION.md">MCP 集成说明</a> ·
+    <a href="../docs/demo-script.md">演示脚本</a>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var nodes = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      for (var i = 0; i < nodes.length; i++) nodes[i].classList.add('in');
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+    for (var j = 0; j < nodes.length; j++) io.observe(nodes[j]);
+  })();
+</script>
+
+</body>
+</html>

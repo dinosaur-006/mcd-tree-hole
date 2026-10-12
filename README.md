@@ -8,7 +8,7 @@
 
 **在这里，不点单是完全正常的结局。**
 
-[参赛声明](CONTEST_DECLARATION.md) · [MCP 集成说明](MCP_INTEGRATION.md) · [设计说明](docs/design.md)
+[参赛声明](CONTEST_DECLARATION.md) · [MCP 集成说明](MCP_INTEGRATION.md) · [设计说明](docs/design.md) · [**可视化演示**](demo/index.html)
 
 ---
 
@@ -177,10 +177,12 @@ cp -r mcd-tree-hole ~/.workbuddy/skills/mcd-tree-hole
 ## 路线图
 
 - [x] 设计定案（定位 / 三层过滤 / 情绪映射）
-- [ ] 语录库与情绪映射落地
-- [ ] 本地档案模块（账本 / 口味 / 情绪日记）
-- [ ] 三块固定话术（安全 / 分流 / 免责）
-- [ ] 演示脚本与素材
+- [x] 语录库与情绪映射（种子批次）
+- [x] 本地档案模块（账本 / 口味 / 情绪日记）
+- [x] 三块固定话术（安全 / 分流 / 免责）
+- [x] 演示脚本与可视化演示页
+- [ ] 语录库扩充至每类 15–25 条
+- [ ] 菜品标签表随官方菜单定期校对
 
 ---
 
