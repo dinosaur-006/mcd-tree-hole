@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    name: unittest (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # 零第三方依赖：不装任何包，直接跑
+      - name: 运行测试
+        run: python tests/test_recall.py -v
+
+      # 顺便验证 unittest 发现机制与直接从任意目录运行两种方式
+      - name: 验证其他运行方式
+        working-directory: ${{ runner.temp }}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          python -m unittest discover -s tests -t . -v
+          cd "${{ runner.temp }}"
+          python "$GITHUB_WORKSPACE/tests/test_recall.py"

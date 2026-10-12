@@ -2,6 +2,8 @@
 
 <img src="assets/banner.svg" alt="麦门树洞 — 不管你今天过得怎么样，那一份是不变的" width="100%">
 
+![tests](https://github.com/dinosaur-006/mcd-tree-hole/actions/workflows/tests.yml/badge.svg)
+
 一个基于**麦当劳 MCP** 的对话式 Skill。
 
 你说一句话，它回你一句，然后给你一份**已经算好价、券也用尽**的搭配——或者，什么都不给。
@@ -215,6 +217,32 @@ cp -r mcd-tree-hole ~/.workbuddy/skills/mcd-tree-hole
 
 ---
 
+## 跑测试
+
+**不需要安装任何东西**，有 Python 就能跑（纯标准库 `unittest`，零第三方依赖）：
+
+```bash
+python tests/test_recall.py -v
+```
+
+也可以交给 unittest 的发现机制或 pytest：
+
+```bash
+python -m unittest discover -s tests -t .
+python -m pytest tests/
+```
+
+每次推送都会自动跑一遍（见 [`.github/workflows/tests.yml`](.github/workflows/tests.yml)），Python 3.11 / 3.13 双版本矩阵，且**不安装任何依赖**。
+
+39 项测试，集中在本地档案模块的三块逻辑：档案读写（含旧版本字段补齐、损坏文件兜底、原子写入）、价格解析与记账、以及**时间维度的事实**（第 N 次 / 星期规律 / 价格变化）。
+
+两点说明：
+
+- 测试**全程使用临时档案**，不会碰你本机的 `user_data/profile.json`。其中有一项测试专门守着这条线。
+- 断言的是**「允许说 / 不允许说」的结论**，不是话术字符串。话术会改，但"什么时候不能说"是红线。例如：同一天点了三次，绝不能输出「连着 3 个周一」——这是会直接摧毁语录可信度的错误，有专门的用例拦它。
+
+---
+
 ## 路线图
 
 - [x] 设计定案（定位 / 三层过滤 / 情绪映射）
@@ -224,9 +252,9 @@ cp -r mcd-tree-hole ~/.workbuddy/skills/mcd-tree-hole
 - [x] 演示脚本与可视化演示页
 - [x] **时间维度**：第 N 次 / 价格变化 / 星期规律（`profile.py recall`）
 - [x] **主动拒单**：凌晨 / 当天已点过 / 券要凑单反而不划算
+- [x] **自动化测试**：39 项，零依赖，clone 即跑（见上节）
 - [ ] 语录库扩充至每类 15–25 条
 - [ ] 菜品清单随官方菜单定期校对
-- [ ] 自动化测试
 
 ---
 
