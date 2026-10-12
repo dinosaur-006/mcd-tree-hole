@@ -16,7 +16,7 @@
 | 鉴权方式 | `Authorization: Bearer <MCD_MCP_TOKEN>` |
 | Token 获取 | <https://mcp.mcd.cn> 登录 → 控制台 → 激活 → 复制 |
 
-> **凭据管理**：Token 仅通过环境变量 `MCD_MCP_TOKEN` 注入，仓库内所有配置文件均为占位符（见 `.env.example`），符合参赛声明中"信息安全声明"的要求。
+> **凭据管理**：Token 仅通过环境变量 `MCD_MCP_TOKEN` 注入，仓库内所有配置文件均为占位符（见 `mcp-config.example.json` 与 `.env.example`），符合参赛声明中"信息安全声明"的要求。
 
 ---
 

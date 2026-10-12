@@ -151,7 +151,7 @@
 
 | 档位 | 内容 |
 |---|---|
-| P0 阻塞项 | public 仓库、`CONTEST_DECLARATION.md` 原样复制、README / MCP_INTEGRATION、一条可跑通的最小链路、报名 Issue |
+| P0 阻塞项 | public 仓库、`CONTEST_DECLARATION.md` 原样复制、README / MCP_INTEGRATION / `mcp-config.example.json`、一条可跑通的最小链路、报名 Issue |
 | P1 关键路径 | README 可读性（Star 转化落地页）、一眼看懂的演示素材、持续传播 |
 | P2 作品质量 | 语录库、降级链、三块固定话术、本地档案 |
 | P3 加分项 | 麦门年报、云端演进 |
@@ -163,4 +163,4 @@
 - [ ] 演示脚本设计（情绪类产品在 3 分钟 demo 中不易打动评委，需专门设计）
 - [ ] 语录库扩充至每类 15–25 条
 - [ ] 菜品标签表随官方菜单变化定期校对
-- [ ] `workbuddy.md` 整理（参加 WorkBuddy 专项奖需提交）
+- [x] `workbuddy.md` 整理（参加 WorkBuddy 专项奖需提交）
