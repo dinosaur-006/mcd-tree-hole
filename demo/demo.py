@@ -29,6 +29,7 @@ SKILL_ROOT = DEMO_ROOT.parent
 sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 import profile  # noqa: E402  —— 复用真实的档案模块，不是复刻一份
+import compose  # noqa: E402  —— 话术组装引擎：这句话是算出来的，不是写死的
 
 FIXTURES = DEMO_ROOT / "fixtures" / "mcp_responses.json"
 
@@ -319,31 +320,32 @@ def act4_g_class(prof: Path, fx: dict, dates: list[datetime]) -> None:
 
     user_says("今天还是老样子，累")
 
-    # ── 台词由事实拼装。取不到事实，就不说那句话。 ──
-    import re
+    # ── 这句台词不是写死的，是组装出来的 ──
+    data = profile.load(prof)
+    utter, hits = compose.compose_with_audit("被掏空", data)
 
-    quote = "又是你啊。"
+    print()
+    print("      " + dim("组装引擎算出的成分："))
+    for s in utter.slots:
+        print("      " + dim(f"│ [{s.name}] {s.text}"))
+        print("      " + dim(f"│   依据：{s.why}"))
+    for d in utter.dropped:
+        print("      " + dim(f"│ [不出现] {d['name']}：{d['why']}"))
+    if hits:
+        print("      " + red(f"│ ✗ 自查不通过：{'、'.join(hits)}"))
 
-    m = re.search(r"连着\s*(\d+)\s*个(\S+?)了", " ".join(facts))
-    if m:
-        quote += f"连着{m.group(1)}个{m.group(2)}了，巨无霸，没变过。"
-
-    m = re.search(r"(巨无霸)[：:]\s*([\d.]+)\s*元.*?(\S*没变\S*)", " ".join(facts))
-    if m:
-        quote += f"价格也没变，还是 {m.group(2)}。"
-
-    quote += "今天不劝你换，就这个。"
-
-    tree_says(quote)
+    tree_says(utter.text())
 
     note(
         "注意：树洞没有说「检测到您已连续三次处于疲惫状态」。"
         "它只是陈述事实。贴标签是禁用文案。"
     )
     note(
-        "另外——如果档案里只有 2 个周三，上面那句会自动变成「连着2个周三了」；"
-        "如果压根没有连续记录，整句话直接不出现。"
+        "更要紧的是——上面那句话没有一个字是写死的。"
+        "次数来自档案、周数来自档案、价格来自档案，"
+        "连要不要说「今天不劝你换」都是算出来的（次数 ≥ 3 才说）。"
     )
+    note("想看这句话是怎么被守住的，跑：python cases/check.py")
 
     combo = {"items": ["巨无霸"], "originalPriceFen": 2550,
              "payPriceFen": 2550, "savedFen": 0, "couponsUsed": 0}
@@ -434,41 +436,79 @@ def _record(prof: Path, when: datetime, *, mood, items, paid, saved,
 # ----------------------------------------------------------------------
 
 def _selftest() -> None:
-    """不打印对话，只验证：这份 demo 真的在跑项目本体的逻辑。
+    """不打印对话，只验证：这些话不是打印出来的，是算出来的。
 
-    有人可能会怀疑「这段对话是不是写死的打印」。这里给出反证：
-    把档案改一改，结论必须跟着变。
+    有人可能会怀疑「这段对话是不是写死的」。这里给出两层反证：
+
+      第一层：把档案改一改，「事实」跟着变。
+      第二层：把档案改一改，**「说哪个成分」也跟着变**。
+              这一层才是关键——它证明句子本身是组装的，不是抄的。
     """
-    print("自检：这些话术不是打印出来的，是算出来的。")
+    print("自检：这些话不是打印出来的，是算出来的。")
     print()
 
     with tempfile.TemporaryDirectory(prefix="mcd-selftest-") as tmp:
         prof = Path(tmp) / "profile.json"
 
+        def show(label: str) -> None:
+            data = profile.load(prof)
+            u, hits = compose.compose_with_audit("被掏空", data)
+            print(f"  {label}")
+            print("    " + dim("成分：" + (" + ".join(s.name for s in u.slots) or "无")))
+            print("    " + dim("输出：" + (u.text() or "（空）")))
+            if hits:
+                print("    " + red("禁用词：" + "、".join(hits)))
+            print()
+
+        print(dim("第 1 步 · 先看「事实」是不是真的从档案来"))
+        print()
+
         # 场景 A：只有一个周三
         _record(prof, datetime(2026, 10, 14, 21, 10), mood="被掏空",
                 items="巨无霸", paid=25.5, saved=0.0,
                 prices={"巨无霸": 25.5}, verbose=False)
-        a = recalled_facts(prof, mood="被掏空")
         print("  档案里只有 1 个周三 →")
-        for ln in a:
+        for ln in recalled_facts(prof, mood="被掏空"):
             if "周三" in ln or "已出现" in ln:
                 print("    " + dim(ln))
 
-        # 场景 B：同一批日期，再加两个连续周三
+        # 场景 B：补两个连续周三
         for d in [datetime(2026, 9, 30, 21, 10), datetime(2026, 10, 7, 21, 10)]:
             _record(prof, d, mood="被掏空", items="巨无霸", paid=25.5,
                     saved=0.0, prices={"巨无霸": 25.5}, verbose=False)
-        b = recalled_facts(prof, mood="被掏空")
         print()
         print("  补上另外 2 个连续周三 →")
-        for ln in b:
+        for ln in recalled_facts(prof, mood="被掏空"):
             if "周三" in ln or "已出现" in ln:
                 print("    " + dim(ln))
 
-    print()
-    print("  同样的代码、同样的模板，结论跟着档案走。")
-    print("  这也就是为什么它不会编——说不出的话，它不会说。")
+        print()
+        print(dim("第 2 步 · 看「说哪些成分」是不是也跟着档案走"))
+        print()
+
+        # 但这里档案已经有 3 条了。为了演示「第一次来」的样子，
+        # 另起一个干净档案。
+        with tempfile.TemporaryDirectory(prefix="mcd-fresh-") as tmp2:
+            fresh = Path(tmp2) / "profile.json"
+            data = profile.load(fresh)
+            u, _ = compose.compose_with_audit("被掏空", data)
+            print("  空档案（第一次来）")
+            print("    " + dim("成分：" + (" + ".join(s.name for s in u.slots) or "无")))
+            print("    " + dim("输出：" + (u.text() or "（空）")))
+            print()
+
+        show("攒够连续周之后")
+
+        # 真的改价：把最新一条的成交价从 25.50 提到 27.00
+        data = profile.load(prof)
+        data["ledger"]["history"][-1]["prices"] = {"巨无霸": 27.0}
+        profile.save(prof, data)
+        show("只把最新一次的价改成 27.00")
+
+    print("  第 1 层：数字跟着档案走。")
+    print("  第 2 层：连「说哪几个成分」都跟着档案走 ——")
+    print("          空档案时不说「第 N 次」，涨价时不说「还是那个」。")
+    print("  说不出的话，它不会说。这就是「第八句话」和「前六句话」的差别。")
     print()
 
 

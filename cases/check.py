@@ -49,6 +49,7 @@ PROJECT_ROOT = CASES_ROOT.parent
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 import profile  # noqa: E402
+import compose  # noqa: E402  —— 话术组装引擎，让「第八句话」可验证
 
 CASES_FILE = CASES_ROOT / "cases.json"
 FIXTURES_FILE = PROJECT_ROOT / "demo" / "fixtures" / "mcp_responses.json"
@@ -300,6 +301,52 @@ def evaluate_case(case: dict, fixtures: dict, verbose: bool) -> tuple[str, list[
                         should_refuse)
                     oks.append(ok)
                     lines.append(msg)
+
+        # --- 断言 H：话术组装（「第八句话」是算出来的） ---
+        if "expect_compose" in case:
+            exp = case["expect_compose"]
+            u, hits = compose.compose_with_audit(mood, data)
+
+            if "slots" in exp:
+                got = [s.name for s in u.slots]
+                ok, msg = assert_fact("生成的成分", got, exp["slots"])
+                oks.append(ok)
+                lines.append(msg)
+
+            if "dropped" in exp:
+                got = [d["name"] for d in u.dropped]
+                for name in exp["dropped"]:
+                    ok = name in got
+                    oks.append(ok)
+                    lines.append(("✓ " if ok else "✗ ") + f"「{name}」成分未生成（符合准入预期）")
+
+            if "text_contains" in exp:
+                t = u.text()
+                for frag in exp["text_contains"]:
+                    ok = frag in t
+                    oks.append(ok)
+                    lines.append(("✓ " if ok else "✗ ") + f"输出包含「{frag}」"
+                                 + ("" if ok else f"，实际：{t}"))
+
+            if "text_excludes" in exp:
+                t = u.text()
+                for frag in exp["text_excludes"]:
+                    ok = frag not in t
+                    oks.append(ok)
+                    lines.append(("✓ " if ok else "✗ ") + f"输出不含「{frag}」"
+                                 + ("" if ok else f"，实际：{t}"))
+
+            if exp.get("no_banned"):
+                ok = not hits
+                oks.append(ok)
+                lines.append(("✓ " if ok else "✗ ") + "禁用词自查通过"
+                             + ("" if ok else f"，踩到：{'、'.join(hits)}"))
+
+            if exp.get("empty"):
+                ok = not u.text().strip()
+                oks.append(ok)
+                lines.append(("✓ " if ok else "✗ ") + "输出为空（不硬套语录）"
+                             + ("" if ok else f"，实际输出了：{u.text()}"))
 
         # ---- 话术类约束：诚实标注为「判不了」 ----
         n_talk = (len(case.get("must_not_contain") or [])

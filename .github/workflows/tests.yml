@@ -48,10 +48,14 @@ jobs:
         with:
           python-version: "3.13"
 
-      # 判决集判的是「系统掌握的事实」，不是「它说的话」。
+      # 判决集判的是「系统掌握的事实」和「话术的骨架」，不是「它说的话」。
       # 有 FAIL 就退出码非零，这次提交就过不去。
       - name: 判定
         run: python cases/check.py
+
+      # 组装引擎能独立跑通（不依赖判决集）
+      - name: 组装引擎
+        run: python scripts/compose.py --list-slots
 
       # 演示脚本也跑一遍：它不该崩，也不该碰到真实档案
       - name: 演示脚本自检
