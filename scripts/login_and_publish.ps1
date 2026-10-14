@@ -44,7 +44,25 @@ if (Test-PortOpen -Host_ "github.com" -Port 443) {
 }
 
 Write-Host ""
-Write-Host "=== 第 1 步：登录 GitHub ===" -ForegroundColor Cyan
+Write-Host "=== 第 1 步：清掉本机可能残留的旧凭据 ===" -ForegroundColor Cyan
+# 这台机器上曾经登录过，但凭据已经失效了。gh 在 Windows 上把 token 交给
+# 系统凭据存储管，而它读的时候会优先取旧的那一条——于是「重新登录成功」
+# 也可能仍然被判 invalid（实测就是这样：浏览器里明明授权成功了，gh api
+# 却依然回 401）。所以先把旧的清掉，再谈重新登录。
+# 这一步只删本机配置，不会去远端撤销 token，是安全的。
+$stale = cmdkey /list | Select-String "gh:github.com"
+if ($stale) {
+    Write-Host "  发现残留凭据，正在清除……" -ForegroundColor Gray
+    cmdkey /delete:"LegacyGeneric:target=gh:github.com:dinosaur-006" 2>&1 | Out-Null
+    cmdkey /delete:"LegacyGeneric:target=gh:github.com:" 2>&1 | Out-Null
+    gh auth logout -h github.com -u dinosaur-006 2>&1 | Out-Null
+    Write-Host "  [完成] 旧凭据已清除" -ForegroundColor Green
+} else {
+    Write-Host "  [跳过] 没有发现残留凭据" -ForegroundColor Gray
+}
+
+Write-Host ""
+Write-Host "=== 第 2 步：登录 GitHub ===" -ForegroundColor Cyan
 Write-Host "  接下来会显示一个 8 位验证码，并把浏览器打开。" -ForegroundColor Gray
 Write-Host "  在浏览器里粘贴验证码，然后点 Authorize 就行了。" -ForegroundColor Gray
 Write-Host ""
@@ -54,10 +72,13 @@ Write-Host ""
 # 这里把所有交互点都用参数消掉了，不需要往标准输入里喂答案——
 # 实测「--web --git-protocol https --scopes ...」这一组合下，gh 一个问题都不问，
 # 直接打印验证码并打开浏览器。用管道喂答案反而容易让 gh 读错。
-#   --web             走设备码流程，浏览器里点授权，不碰任何 token
-#   --git-protocol    预先定好 HTTPS，免得它反问；同时让 git 复用这份凭据
-#   --scopes          发布需要 repo（读写仓库）和 read:org
-gh auth login -h github.com --web --git-protocol https --scopes "repo,read:org"
+#   --web              走设备码流程，浏览器里点授权，不碰任何 token
+#   --git-protocol     预先定好 HTTPS，免得它反问；同时让 git 复用这份凭据
+#   --scopes           发布需要 repo（读写仓库）和 read:org
+#   --insecure-storage 把 token 存成明文文件，绕开系统凭据存储。
+#                      这台机器的凭据存储有过「存进去读不出来」的记录，
+#                      明文存储反而稳。文件在你自己的用户目录下，且绝不入库。
+gh auth login -h github.com --web --git-protocol https --insecure-storage --scopes "repo,read:org"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host ""
@@ -68,11 +89,21 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host ""
-Write-Host "=== 第 2 步：确认登录状态 ===" -ForegroundColor Cyan
+Write-Host "=== 第 3 步：确认登录真的可用 ===" -ForegroundColor Cyan
+# 只看 gh auth status 不够——它可能报成功，实际 API 仍然 401。
+# 这里真去打一次接口，拿到用户名才算数。
 gh auth status
+Write-Host ""
+$who = gh api user --jq ".login" 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "[失败] 登录状态看着没问题，但接口返回 401，凭据其实不可用。" -ForegroundColor Red
+    Write-Host "  请再跑一次本脚本（第 1 步会清掉这次留下的凭据再重来）。" -ForegroundColor Red
+    exit 1
+}
+Write-Host "  [通过] 已确认身份：$who" -ForegroundColor Green
 
 Write-Host ""
-Write-Host "=== 第 3 步：发布（建仓 + 推送 + 校验）===" -ForegroundColor Cyan
+Write-Host "=== 第 4 步：发布（建仓 + 推送 + 校验）===" -ForegroundColor Cyan
 # 切到项目根目录，这样 python 脚本里的相对路径才对
 Push-Location (Split-Path -Parent $PSScriptRoot)
 try {
