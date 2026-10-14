@@ -106,7 +106,42 @@ def check_gh() -> None:
 # ----------------------------------------------------------------------
 
 def repo_exists() -> bool:
-    return run(["gh", "repo", "view", FULL], check=False).returncode == 0
+    """判断远端仓库在不在。
+
+    用公开 REST API 探测，而不是 `gh repo view`——理由有两个：
+      1. gh 的凭据若失效，`gh repo view` 会直接 HTTP 401 报错退出。这时把
+         「查不到」当成「不存在」，会让脚本去重复建仓，白挨一次错误。
+         公开 API 不挑凭据，只回答「这个仓库存不存在」这一个问题。
+      2. 探测用只读 GET，不产生任何副作用，比调 gh 的子命令更轻。
+
+    网络不通时保守地返回 True（当作已存在），让流程交给后面的 create 步骤，
+    而不是在这里直接判死。
+    """
+    import json
+    import urllib.error
+    import urllib.request
+
+    url = f"https://api.github.com/repos/{FULL}"
+    req = urllib.request.Request(url, headers={
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "mcd-tree-hole-publish-script",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.load(resp)
+        # size=0 且是空仓库时，API 仍会正常返回仓库对象
+        info(f"远端仓库已存在（visibility={data.get('visibility')}，"
+             f"size={data.get('size')} KB）")
+        return True
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return False
+        # 403 之类：可能是限流，也可能真有问题。不在这里下结论。
+        info(f"探测仓库时收到 HTTP {exc.code}，暂按「已存在」处理")
+        return True
+    except Exception as exc:  # 网络异常
+        info(f"探测仓库失败（{type(exc).__name__}），暂按「已存在」处理")
+        return True
 
 
 def create_repo() -> None:
@@ -114,12 +149,19 @@ def create_repo() -> None:
         info(f"仓库 {FULL} 已存在，跳过创建")
         return
     print(f"  -> 创建公开仓库 {FULL}")
-    run([
+    # check=False：仓库若已被别的路径建好，gh 会以非零码退出并提示
+    # "already exists"。这是正常情况，不该让整个发布流程断掉。
+    result = run([
         "gh", "repo", "create", FULL,
         "--public",
         "--description", DESCRIPTION,
-    ])
-    ok("仓库已创建")
+    ], check=False)
+    if result.returncode == 0:
+        ok("仓库已创建")
+    else:
+        info("创建仓库时 gh 返回非零（多半是已经存在了），继续往下走")
+        if result.stderr:
+            info("  " + result.stderr.strip().splitlines()[0])
 
 
 def share_credentials_with_git() -> None:
