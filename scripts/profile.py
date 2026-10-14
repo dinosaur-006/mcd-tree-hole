@@ -257,21 +257,8 @@ def cmd_stats(args) -> None:
         print(f"最近一次：{ledger['history'][-1]['time']}")
 
 
-def cmd_recall(args) -> None:
-    """输出「时间维度」的事实，供 G 类语录填充。
-
-    只输出事实，不输出话术。话术由模型组合，但数字必须来自本命令——
-    编造次数或价格，比不用这条语录更糟。
-    """
-    data = load(args.path)
-    hist = data["ledger"]["history"]
-    journal = data["journal"]
-
-    if not hist and not journal:
-        print("还没有任何记录。G 类（时间维度）语录暂不可用。")
-        return
-
-    # 先把历史解析成 (datetime, entry)，解析失败的丢弃
+def _parse_dated(hist: list) -> list:
+    """把历史解析成 [(datetime, entry)]，解析失败的丢弃。"""
     dated = []
     for e in hist:
         try:
@@ -279,44 +266,69 @@ def cmd_recall(args) -> None:
         except (ValueError, TypeError):
             continue
         dated.append((dt, e))
+    return dated
 
-    print("—— 时间维度的事实 ——")
 
-    # 1) 同类计数（受 --mood 影响）
-    key = args.mood
-    if key:
-        n = sum(1 for e in hist if (e.get("mood") or "") == key)
-        n += sum(1 for j in journal if (j.get("mood") or "") == key)
-        if n >= 2:
-            print(f"「{key}」已出现 {n} 次 —— 可以说「第 {n} 次」。")
-        elif n == 1:
-            print(f"「{key}」只出现过 1 次 —— 不可以用「第 N 次」句式。")
-        else:
-            print(f"「{key}」没有记录 —— 不可以用「第 N 次」句式。")
-    else:
-        print(f"总记录：{len(hist)} 次搭配 / {len(journal)} 条情绪")
-    print()
+def compute_recall(data: dict, mood: str | None = None) -> dict:
+    """把 cmd_recall 的判定抽成结构化结果。
 
-    # 2) 星期规律（全局，与 --mood 无关）
-    #    必须按「不同日期」计数：同一天记多次不算多个周
-    by_wd = {}
+    cmd_recall 只是把它打印出来。判决集（cases/check.py）直接读这个函数——
+    两边共用同一份计算，不存在「文档写一套、代码跑另一套」的余地。
+
+    返回：
+        {
+          "ok": bool,                    # 是否有任何记录
+          "mood_count": {"mood":…, "n":…, "sayable": bool},
+          "weekday": {"weekday":…, "weeks":…, "consecutive": bool, "sayable_consecutive": bool},
+          "prices": [{"item":…, "current":…, "previous":…, "diff":…, "verdict":…}],
+          "last_paid": float | None,
+          "total_orders": int,
+          "total_journal": int,
+        }
+    """
+    hist = data.get("ledger", {}).get("history", [])
+    journal = data.get("journal", [])
+    dated = _parse_dated(hist)
+
+    result = {
+        "ok": bool(hist or journal),
+        "mood_count": None,
+        "weekday": None,
+        "prices": [],
+        "last_paid": None,
+        "total_orders": len(hist),
+        "total_journal": len(journal),
+    }
+
+    if not result["ok"]:
+        return result
+
+    # 1) 同类计数
+    if mood:
+        n = sum(1 for e in hist if (e.get("mood") or "") == mood)
+        n += sum(1 for j in journal if (j.get("mood") or "") == mood)
+        result["mood_count"] = {"mood": mood, "n": n, "sayable": n >= 2}
+
+    # 2) 星期规律 —— 必须按「不同日期」计数：同一天记多次不算多个周
+    by_wd: dict = {}
     for dt, _ in dated:
         by_wd.setdefault(weekday_cn(dt), set()).add(dt.date())
     if by_wd:
         top_wd, top_days = max(by_wd.items(), key=lambda kv: len(kv[1]))
         n = len(top_days)
+        consecutive = False
         if n >= 2:
             ds = sorted(top_days)
             consecutive = all((ds[i + 1] - ds[i]).days == 7 for i in range(n - 1))
-            if consecutive:
-                print(f"{top_wd}：{n} 个连续周 —— 可以说「连着 {n} 个{top_wd}了」。")
-            else:
-                print(f"{top_wd}：{n} 个不同的日子但不连续 —— 只能说「{n} 个{top_wd}」，不能说「连着」。")
-        else:
-            print(f"{top_wd}：只出现过 1 天 —— 不可以说「连着 N 个{top_wd}」。")
-        print()
+        result["weekday"] = {
+            "weekday": top_wd,
+            "weeks": n,
+            "consecutive": consecutive,
+            # 只有「>=2 且两两间隔恰好 7 天」才可以说「连着」
+            "sayable_consecutive": n >= 2 and consecutive,
+        }
 
-    # 3) 最近一次的价格变化（全局）
+    # 3) 最近一次的价格变化
     if dated:
         last = dated[-1][1]
         for name, cur in (last.get("prices") or {}).items():
@@ -327,19 +339,88 @@ def cmd_recall(args) -> None:
                     prev = (p, e["time"])
                     break
             if prev is None:
-                print(f"{name}：{cur:.2f} 元（首次记录，无对比）")
+                result["prices"].append({
+                    "item": name, "current": cur, "previous": None,
+                    "diff": None, "verdict": "first",
+                })
                 continue
-            prev_p, prev_t = prev
+            prev_p, _ = prev
             diff = round(cur - prev_p, 2)
-            if diff == 0:
-                print(f"{name}：{cur:.2f} 元，与上次（{prev_t}）相同 —— 可以说「没变」")
-            elif diff > 0:
-                print(f"{name}：{cur:.2f} 元，比上次（{prev_t}）涨了 {diff:.2f} 元 —— 必须如实说涨")
-            else:
-                print(f"{name}：{cur:.2f} 元，比上次（{prev_t}）降了 {abs(diff):.2f} 元")
+            verdict = "same" if diff == 0 else ("up" if diff > 0 else "down")
+            result["prices"].append({
+                "item": name, "current": cur, "previous": prev_p,
+                "diff": diff, "verdict": verdict,
+            })
         if last.get("paid") is not None:
-            print(f"最近一次实付：{last['paid']:.2f} 元")
+            result["last_paid"] = float(last["paid"])
+
+    return result
+
+
+def cmd_recall(args) -> None:
+    """输出「时间维度」的事实，供 G 类语录填充。
+
+    只输出事实，不输出话术。话术由模型组合，但数字必须来自本命令——
+    编造次数或价格，比不用这条语录更糟。
+    """
+    data = load(args.path)
+
+    if getattr(args, "json", False):
+        print(json.dumps(compute_recall(data, args.mood),
+                         ensure_ascii=False, indent=2))
+        return
+
+    r = compute_recall(data, args.mood)
+
+    if not r["ok"]:
+        print("还没有任何记录。G 类（时间维度）语录暂不可用。")
+        return
+
+    print("—— 时间维度的事实 ——")
+
+    # 1) 同类计数（受 --mood 影响）
+    if args.mood:
+        mc = r["mood_count"]
+        n = mc["n"]
+        if n >= 2:
+            print(f"「{args.mood}」已出现 {n} 次 —— 可以说「第 {n} 次」。")
+        elif n == 1:
+            print(f"「{args.mood}」只出现过 1 次 —— 不可以用「第 N 次」句式。")
+        else:
+            print(f"「{args.mood}」没有记录 —— 不可以用「第 N 次」句式。")
     else:
+        print(f"总记录：{r['total_orders']} 次搭配 / {r['total_journal']} 条情绪")
+    print()
+
+    # 2) 星期规律（全局，与 --mood 无关）
+    wd = r["weekday"]
+    if wd:
+        top_wd, n = wd["weekday"], wd["weeks"]
+        if wd["sayable_consecutive"]:
+            print(f"{top_wd}：{n} 个连续周 —— 可以说「连着 {n} 个{top_wd}了」。")
+        elif n >= 2:
+            print(f"{top_wd}：{n} 个不同的日子但不连续 —— "
+                  f"只能说「{n} 个{top_wd}」，不能说「连着」。")
+        else:
+            print(f"{top_wd}：只出现过 1 天 —— 不可以说「连着 N 个{top_wd}」。")
+        print()
+
+    # 3) 最近一次的价格变化（全局）
+    if r["prices"]:
+        for p in r["prices"]:
+            if p["verdict"] == "first":
+                print(f"{p['item']}：{p['current']:.2f} 元（首次记录，无对比）")
+            elif p["verdict"] == "same":
+                print(f"{p['item']}：{p['current']:.2f} 元，与上次相同 —— 可以说「没变」")
+            elif p["verdict"] == "up":
+                print(f"{p['item']}：{p['current']:.2f} 元，"
+                      f"比上次涨了 {p['diff']:.2f} 元 —— 必须如实说涨")
+            else:
+                print(f"{p['item']}：{p['current']:.2f} 元，"
+                      f"比上次降了 {abs(p['diff']):.2f} 元")
+        if r["last_paid"] is not None:
+            print(f"最近一次实付：{r['last_paid']:.2f} 元")
+    elif r["total_orders"] == 0:
         print("（还没有搭配记录，价格与次数都不可用）")
 
 
@@ -405,6 +486,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_rc = sub.add_parser("recall", help="查询时间维度的事实（第 N 次 / 价格没变）")
     p_rc.add_argument("--mood", help="按情绪标签筛选")
+    p_rc.add_argument("--json", action="store_true",
+                      help="输出结构化结果（判决集与自动化检查用）")
     p_rc.set_defaults(func=cmd_recall)
 
     return parser

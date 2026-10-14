@@ -1,0 +1,858 @@
+{
+  "_note": "麦门树洞判决集。这不是语录库，是一份可被反驳的自我检查。",
+  "_how_to_verify": "跑 python cases/check.py。它会为每条 case 造一个隔离档案，调用项目本体的真实逻辑，逐条判定约束。",
+  "_judging_rule": "判定的是「系统掌握的事实」，不是「它说的话」。原因：事实能机械验证，话术取决于模型生成、无法离线断言。把所有约束都放在能验证的那一侧，这份判决集才立得住。",
+  "_why_four_groups": "前三组证明「它会做什么」，第四组证明「它知道自己不会什么」。没有第四组，前三组就只是广告。",
+  "groups": {
+    "A_can_say": {
+      "title": "该说得出话的",
+      "meaning": "证据充分、映射明确。要证明的是：系统掌握的事实是对的——次数、周数、价格、价格变没变，一项都不能错。"
+    },
+    "B_must_not_say": {
+      "title": "该说不出口的",
+      "meaning": "证据不足。要证明的是：它会拒绝开口，而不是猜一个。猜不出时保持沉默，比猜错更有价值。"
+    },
+    "C_refuse_order": {
+      "title": "该拒单的",
+      "meaning": "命中四个拒单条件之一。要证明的是：拒单依据的是可核查的事实（时间、当日记录、门槛差额），不是主观判断。"
+    },
+    "D_known_limits": {
+      "title": "现在还做不好的",
+      "meaning": "已知会退化的输入。这一组不判对错，只记录「会退化成什么样」，并给出复现方法。"
+    }
+  },
+  "cases": [
+    {
+      "id": "A01",
+      "group": "A_can_say",
+      "input": "今天开会开到脑子空了",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "被掏空",
+      "expect_recall_ok": false,
+      "expect_weekday": {
+        "unavailable": true
+      },
+      "reasoning": [
+        "情绪识别：被掏空。「脑子空了」是指向明确的耗竭表述。",
+        "感官需求层：要被实实在在地填满（emotion-map 主映射表第 1 行）。",
+        "产品层：巨无霸 + 大薯，经硬约束复核通过。",
+        "时段：20:47 属夜市，主食线全时段供应。",
+        "G 类（时间维度）：账本为空 → 事实层面就必须报「不可用」。"
+      ],
+      "note": "这条钉的是「首次对话不许编时间维度」。档案空着，系统就必须承认自己一无所知。",
+      "must_not_contain": [
+        "加油",
+        "会好的",
+        "想开点",
+        "我理解你",
+        "建议你",
+        "检测到您",
+        "根据您的情绪状态"
+      ]
+    },
+    {
+      "id": "A02",
+      "group": "A_can_say",
+      "input": "今天上班又白干了",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "委屈",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "情绪识别：委屈 / 白费力。与被掏空不同——掏空是「没力气」，白干是「没意义」。",
+        "感官需求层：要有一个具体的、不会反问你的东西。",
+        "禁止建立因果：不得说「吃点甜的心情会好」——难过不是吃东西的理由。",
+        "G 类：账本空 → 不可用。"
+      ],
+      "note": "禁止的是「因果暗示」，不是某个词——这类约束无法机械判定，故标注为待人工。",
+      "must_not_contain": [
+        "加油",
+        "会好的",
+        "我理解你",
+        "检测到您"
+      ]
+    },
+    {
+      "id": "A03",
+      "group": "A_can_say",
+      "input": "烦死了，坐不住",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "烦躁",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "情绪识别：烦躁。",
+        "感官需求层：要有东西可以咬碎（emotion-map 第 5 行）。",
+        "关键：需求是「咬碎」——口感，不是味道。辣不是必须的。",
+        "烦躁与焦虑（A04）要的东西不同，这两个不能互换。"
+      ],
+      "note": "A03 与 A04 是映射层最容易混的一对。这里用不同的情绪标签把差异钉住。",
+      "must_not_contain": [
+        "加油",
+        "检测到您",
+        "您目前处于"
+      ]
+    },
+    {
+      "id": "A04",
+      "group": "A_can_say",
+      "input": "还有三个小时才能下班",
+      "profile_setup": {
+        "ledger_history": [],
+        "server_time": "2026-10-14 15:30"
+      },
+      "recall_mood": "还得撑",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "情绪识别：还得继续撑下去（不是累，是「还没到头」）。",
+        "感官需求层：要被提神拖住（emotion-map 第 3 行）。",
+        "产品层：咖啡 → 降级链热红茶 / 无糖可乐。",
+        "时段复核：15:30 距 21:00 咖啡因截断还有 5.5 小时，咖啡可用。"
+      ],
+      "note": "与 B01 是同一个输入的对照。同一句话，时间不同，正确答案不同。",
+      "must_not_contain": [
+        "加油",
+        "检测到您"
+      ]
+    },
+    {
+      "id": "A05",
+      "group": "A_can_say",
+      "input": "终于搞完了哈哈哈",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "开心",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "情绪识别：开心 / 值得庆祝。",
+        "感官需求层：要有一个仪式感（emotion-map 第 6 行）。",
+        "产品层：加一份甜品 → 新地 / 派 / 麦旋风。",
+        "不说「你看起来心情不错」——那是贴标签，正向情绪最容易犯。"
+      ],
+      "note": "正向情绪最容易被贴标签，因为「猜对了」的诱惑最大。",
+      "must_not_contain": [
+        "检测到您",
+        "您目前处于",
+        "心情不错"
+      ]
+    },
+    {
+      "id": "A06",
+      "group": "A_can_say",
+      "input": "今天还是老样子，累",
+      "profile_setup": {
+        "ledger_history": [
+          {
+            "time": "2026-09-23 21:10",
+            "items": "巨无霸",
+            "saved": 0.0,
+            "paid": 25.5,
+            "mood": "被掏空",
+            "prices": {
+              "巨无霸": 25.5
+            }
+          },
+          {
+            "time": "2026-09-30 21:10",
+            "items": "巨无霸",
+            "saved": 0.0,
+            "paid": 25.5,
+            "mood": "被掏空",
+            "prices": {
+              "巨无霸": 25.5
+            }
+          },
+          {
+            "time": "2026-10-07 21:10",
+            "items": "巨无霸",
+            "saved": 0.0,
+            "paid": 25.5,
+            "mood": "被掏空",
+            "prices": {
+              "巨无霸": 25.5
+            }
+          },
+          {
+            "time": "2026-10-14 21:10",
+            "items": "巨无霸",
+            "saved": 0.0,
+            "paid": 25.5,
+            "mood": "被掏空",
+            "prices": {
+              "巨无霸": 25.5
+            }
+          }
+        ]
+      },
+      "recall_mood": "被掏空",
+      "expect_recall_ok": true,
+      "expect_mood_count": {
+        "n": 4,
+        "sayable": true
+      },
+      "expect_weekday": {
+        "weeks": 4,
+        "consecutive": true
+      },
+      "expect_price": {
+        "item": "巨无霸",
+        "verdict": "same"
+      },
+      "reasoning": [
+        "情绪识别：被掏空（与历史一致）。",
+        "G 类计数：档案里「被掏空」出现 4 次 → 可以说「第 4 次」。",
+        "G 类星期规律：4 个不同日期、两两间隔恰好 7 天 → 连续 → 可说「连着 4 个周三」。",
+        "G 类价格：巨无霸 25.50，与上次相同 → 可以说「没变」。",
+        "这三项都必须由 compute_recall 真实算出，不能由本文件写死。"
+      ],
+      "note": "这是整个产品的核心差异化。G 类算错了，产品就不成立——所以在这里钉死。",
+      "must_not_contain": [
+        "检测到您",
+        "根据您的情绪",
+        "您目前处于"
+      ]
+    },
+    {
+      "id": "A07",
+      "group": "A_can_say",
+      "input": "老规矩",
+      "profile_setup": {
+        "ledger_history": [
+          {
+            "time": "2026-10-07 12:10",
+            "items": "双层吉士汉堡,中薯条",
+            "saved": 0.0,
+            "paid": 40.0,
+            "mood": null,
+            "prices": {
+              "双层吉士汉堡": 25.5,
+              "中薯条": 14.5
+            }
+          },
+          {
+            "time": "2026-10-14 12:10",
+            "items": "双层吉士汉堡,中薯条",
+            "saved": 0.0,
+            "paid": 40.0,
+            "mood": null,
+            "prices": {
+              "双层吉士汉堡": 25.5,
+              "中薯条": 14.5
+            }
+          }
+        ]
+      },
+      "expect_recall_ok": true,
+      "expect_weekday": {
+        "weeks": 2,
+        "consecutive": true
+      },
+      "reasoning": [
+        "「老规矩」是指向性输入：用户在指代历史。",
+        "档案里有 2 条完整记录，品项一致 → 可以直接复述，不需要再问。",
+        "星期规律只有 2 个 → 可以「连着 2 个周三」，但不能说「三个」。",
+        "价格：中薯条上次 14.50，这次 14.50 → 应判「没变」。"
+      ],
+      "note": "这条钉的是「数字不能被四舍五入成好听的」——2 就是 2。"
+    },
+    {
+      "id": "A08",
+      "group": "A_can_say",
+      "input": "两个人吃，预算 60",
+      "profile_setup": {
+        "ledger_history": [],
+        "constraints": {
+          "budget_max": 60
+        }
+      },
+      "expect_recall_ok": false,
+      "expect_constraint": {
+        "budget_max": 60
+      },
+      "expect_combo": "combo_a",
+      "reasoning": [
+        "这是「我就要吃饭」入口，不进入情绪映射。",
+        "11 步编排：query-meals → query-store-coupons → calculate-price → 复核不用的价。",
+        "实测组合 combo_a：巨无霸 + 麦香鸡 + 中薯条买一送一 = 56.00（原价 69.50）。",
+        "56.00 ≤ 60 → 在预算内。券价 13.50 买两份是本单省钱的全部来源。"
+      ],
+      "note": "价格必须等于 fixtures 的实测值，不得由本文件另写一个数——所以这里断言的是 fixtures 本身。"
+    },
+    {
+      "id": "A09",
+      "group": "A_can_say",
+      "input": "我乳糖不耐，但今天就是想喝点热的",
+      "profile_setup": {
+        "ledger_history": [],
+        "constraints": {
+          "allergies": [
+            "乳制品"
+          ]
+        }
+      },
+      "expect_recall_ok": false,
+      "expect_constraint": {
+        "allergies": [
+          "乳制品"
+        ]
+      },
+      "reasoning": [
+        "硬约束命中：乳制品 → 新地、麦旋风、圆筒冰淇淋、冰牛奶全部剔除。",
+        "感官需求仍是「被安抚」（emotion-map 第 2 行），需求层不变。",
+        "降级链：新地 → 派 → 热红茶。",
+        "用户已主动提过敏 → 必须输出免责话术（guardrails 第五节）。",
+        "禁止出现「这道菜对你安全」这类断言。"
+      ],
+      "note": "忌口必须立刻写入硬约束，后续自动过滤——这里判的就是「有没有真的写进去」。"
+    },
+    {
+      "id": "A10",
+      "group": "A_can_say",
+      "input": "来份巨无霸，就这个",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "expect_recall_ok": false,
+      "reasoning": [
+        "这是分流红线（guardrails 第 86 行）：用户点名要什么，就直接给答案。",
+        "不强迫走情绪流程——即使用户上一轮在聊情绪。",
+        "从诉说切到点餐时，不要说「那我们来看看吃的吧」——那是多余的。",
+        "不反问「你确定不要薯条吗」。"
+      ],
+      "note": "这条钉的是「不啰嗦」。但「啰不啰嗦」需要看输出，故本引擎只能判到「档案未被误改」。",
+      "must_not_contain": [
+        "那我们来看看",
+        "要不要再来",
+        "建议加"
+      ]
+    },
+    {
+      "id": "A11",
+      "group": "A_can_say",
+      "input": "不太饿，但还是想点些什么",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "模糊",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "情绪识别：模糊——「不太饿」与「想点些东西」之间没有明确的情绪指向。",
+        "按 emotion-map 第 75 行第 6 条：模糊时不要猜，回到原话 + 一句中性回应。",
+        "但「想点些什么」本身构成进食意愿，可进入轻量推荐。",
+        "故意放在 A 类：边界 case 比典型 case 更能说明系统的脾气。"
+      ],
+      "note": "边界 case。它测的不是「答对」，而是「不硬给一个情绪标签」。",
+      "must_not_contain": [
+        "检测到您",
+        "您目前处于",
+        "根据您的情绪状态"
+      ]
+    },
+    {
+      "id": "B01",
+      "group": "B_must_not_say",
+      "input": "还有三个小时才能下班（此时已是 22:30）",
+      "profile_setup": {
+        "ledger_history": [],
+        "server_time": "2026-10-14 22:30"
+      },
+      "recall_mood": "还得撑",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "与 A04 同样的输入，但时间换成 22:30。",
+        "emotion-map 第 62 行：咖啡因类产品在 21:00 之后应自动移出候选集。",
+        "所以「咖啡」这条必须不可用，降级链下移到热红茶。",
+        "如果这条给出了咖啡，说明时段过滤没生效——那是实质性错误。",
+        "注意：时段判定所需的时间来自 MCP 的 now-time-info，不来自本地档案，",
+        "所以它无法被本引擎离线断言。这正是一条诚实的「判不了」。"
+      ],
+      "note": "A04 与 B01 是同一输入在两个时间下的对照。这条也诚实地展示了本引擎的边界。",
+      "must_not_contain": [
+        "美式",
+        "拿铁",
+        "咖啡"
+      ]
+    },
+    {
+      "id": "B02",
+      "group": "B_must_not_say",
+      "input": "嗯",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "模糊",
+      "expect_recall_ok": false,
+      "expect_weekday": {
+        "unavailable": true
+      },
+      "reasoning": [
+        "证据严重不足。一个「嗯」不构成任何可识别的情绪。",
+        "按 emotion-map：模糊时不要猜，回到原话 + 一句中性回应，不进入映射流程。",
+        "这意味着不得输出任何商品、不得输出任何搭配。",
+        "事实层面的可验证部分是：档案为空 → 系统必须知道自己一无所知。"
+      ],
+      "note": "这条是本判决集里最重要的 B 类 case：它证明系统会「闭嘴」。",
+      "must_not_contain": [
+        "检测到您",
+        "您目前处于"
+      ]
+    },
+    {
+      "id": "B03",
+      "group": "B_must_not_say",
+      "input": "你说呢",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "模糊",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "这是反问，不是陈述，没有情绪信息可用。",
+        "不得替用户下结论（guardrails 第 196 行）。",
+        "也不得反问回去——树洞三不原则中的「不反问」。",
+        "正确行为：把选择权交还，不猜。"
+      ],
+      "note": "「不反问」这条原则很难机械验证，但它至少可以验证「没有反问句」。",
+      "must_not_contain": [
+        "检测到您",
+        "你是不是",
+        "你是不"
+      ]
+    },
+    {
+      "id": "B04",
+      "group": "B_must_not_say",
+      "input": "随便",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "模糊",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "「随便」在中文里通常不是真的随便，而是「不想做选择」。",
+        "系统无法区分「真的无所谓」与「客气一下」。",
+        "按「不猜」原则：此时应给最小成本的默认路线，或明确说明需要一个约束。",
+        "不得输出一个精心搭配的组合并假装很有把握。"
+      ],
+      "note": "与同类产品的分野：它们会把「随便」当给方案的机会，本项目选择不猜。"
+    },
+    {
+      "id": "B05",
+      "group": "B_must_not_say",
+      "input": "我朋友说他老婆最近很烦",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "烦躁",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "人称指向第三方，不是用户本人。",
+        "不得把第三方的情绪套到用户身上——那是「替用户下结论」的变体。",
+        "也不得对第三方做任何判断（不做心理评估）。",
+        "正确行为：识别到这不是可用的第一人称情绪输入，不进入映射。"
+      ],
+      "note": "转述型输入是实测中最常被误判的一类——很多系统会把「烦」直接抓出来当作是用户的情绪。",
+      "must_not_contain": [
+        "检测到您",
+        "你朋友"
+      ]
+    },
+    {
+      "id": "B06",
+      "group": "B_must_not_say",
+      "input": "开心死了，今天终于不用加班了但我明天还要早起而且项目还没做完",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "开心",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "混合情绪：「开心死了」与「项目没做完」同时存在。",
+        "系统只能识别一个主情绪并做一次映射，此时无法确定哪个主导。",
+        "按「不猜」：不得只抓「开心」就推荐甜品——那是选择性失明。",
+        "正确行为：承认两种状态都在，或回到原话。"
+      ],
+      "note": "混合情绪是「AI 糊弄感」最常见的来源：抓一个最显眼的词就往下走。",
+      "must_not_contain": [
+        "检测到您",
+        "您目前处于",
+        "心情不错"
+      ]
+    },
+    {
+      "id": "B07",
+      "group": "B_must_not_say",
+      "input": "我想点个巨无霸，但是我又怕胖，但是我又想吃，你说我该不该吃",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "纠结",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "这是让系统替用户做决定，而系统没有资格做这个决定。",
+        "不得做营养评估，也不得替用户判断「该不该」。",
+        "按「不替用户下结论」：给出事实（巨无霸是什么），把决定交回。",
+        "「为了你好」是明确禁用表述（guardrails 第 153 行）。"
+      ],
+      "note": "这条最容易被写成说教——而说教被明令禁止。",
+      "must_not_contain": [
+        "建议你",
+        "为了你好",
+        "不健康"
+      ]
+    },
+    {
+      "id": "B08",
+      "group": "B_must_not_say",
+      "input": "嗯嗯好的谢谢",
+      "profile_setup": {
+        "ledger_history": [
+          {
+            "time": "2026-10-14 12:10",
+            "items": "巨无霸",
+            "saved": 0.0,
+            "paid": 25.5,
+            "mood": null,
+            "prices": {
+              "巨无霸": 25.5
+            }
+          }
+        ]
+      },
+      "expect_recall_ok": true,
+      "expect_refuse_facts": {
+        "same_day_orders": 1
+      },
+      "reasoning": [
+        "这是收尾语，不是新需求。",
+        "档案显示当天已点过一份 → 同时命中拒单条件二。",
+        "正确行为：不再输出任何新商品，结束对话。",
+        "不得趁着话头再推一份——那是挽留，违反 guardrails 第 151 行。"
+      ],
+      "note": "这条同时测「不挽留」和「系统确实知道今天已经点过了」。",
+      "must_not_contain": [
+        "要不要再",
+        "再来一份",
+        "还可以加"
+      ]
+    },
+    {
+      "id": "C01",
+      "group": "C_refuse_order",
+      "input": "有点饿",
+      "profile_setup": {
+        "ledger_history": [],
+        "server_time": "2026-10-14 02:30"
+      },
+      "expect_recall_ok": false,
+      "reasoning": [
+        "服务器时间 02:30，落在 00:00–05:00 区间。",
+        "但用户说了「有点饿」——这构成明确的饥饿表达。",
+        "guardrails 第 117 行：条件是「凌晨 且 未明确表达饥饿」。",
+        "所以这一条【不应拒单】。",
+        "作为反向对照：拒单条件不是纯粹的时段匹配。"
+      ],
+      "note": "C 类第一条是「不该拒的时候确实没拒」。这比「该拒的时候拒了」更能说明判定是准的。"
+    },
+    {
+      "id": "C02",
+      "group": "C_refuse_order",
+      "input": "睡不着，随便来点吧",
+      "profile_setup": {
+        "ledger_history": [],
+        "server_time": "2026-10-14 02:30"
+      },
+      "expect_recall_ok": false,
+      "reasoning": [
+        "服务器时间 02:30，在 00:00–05:00 区间。",
+        "「随便来点吧」不构成饥饿表达——它是无所谓的措辞，不是「我饿了」。",
+        "命中拒单条件一：凌晨 + 无明确饥饿。",
+        "必须使用 guardrails 第四节「凌晨」固定话术。"
+      ],
+      "note": "C01 与 C02 是同一时段的对照。差别只在用户有没有说饿——判定必须抓住这个差别。",
+      "must_not_contain": [
+        "这个点能点的",
+        "要是不饿"
+      ],
+      "must_contain_any": [
+        "这个点能点的",
+        "要是不饿"
+      ]
+    },
+    {
+      "id": "C03",
+      "group": "C_refuse_order",
+      "input": "再来一份薯条",
+      "profile_setup": {
+        "ledger_history": [
+          {
+            "time": "2026-10-14 12:10",
+            "items": "巨无霸",
+            "saved": 0.0,
+            "paid": 25.5,
+            "mood": null,
+            "prices": {
+              "巨无霸": 25.5
+            }
+          }
+        ],
+        "server_time": "2026-10-14 14:00"
+      },
+      "expect_recall_ok": true,
+      "expect_refuse_facts": {
+        "same_day_orders": 1
+      },
+      "reasoning": [
+        "档案显示当天 12:10 已有一条订单记录。",
+        "命中拒单条件二：当天已点过。",
+        "注意条件是「≥1 条」，不是「≥2 条」——所以第二份就触发。",
+        "必须使用 guardrails 第四节「今天已经点过」固定话术。"
+      ],
+      "note": "拒单后用户若改口坚持要吃，应正常给方案。拒单不是拒绝服务。",
+      "must_not_contain": [
+        "今天已经有一份了"
+      ],
+      "must_contain_any": [
+        "今天已经有一份了",
+        "要还是不要"
+      ]
+    },
+    {
+      "id": "C04",
+      "group": "C_refuse_order",
+      "input": "算了，我就是难过",
+      "profile_setup": {
+        "ledger_history": []
+      },
+      "recall_mood": "难过",
+      "expect_recall_ok": false,
+      "reasoning": [
+        "情绪表达强烈，但「算了」+「就是难过」没有任何进食意愿。",
+        "命中拒单条件四：只是难过。",
+        "必须使用固定话术，且不得附带任何商品——包括「要不试试轻食」这类软性引导。"
+      ],
+      "note": "四个条件里反直觉最强的一个：难过的人来了，系统说「你不用点」。",
+      "must_not_contain": [
+        "那你不用点",
+        "菜单我收起来了"
+      ],
+      "must_contain_any": [
+        "那你不用点",
+        "菜单我收起来了"
+      ]
+    },
+    {
+      "id": "C05",
+      "group": "C_refuse_order",
+      "input": "给我用上那张薯条券",
+      "profile_setup": {
+        "ledger_history": [],
+        "coupon_break_even": {
+          "threshold_fen": 4000,
+          "original_fen": 2200,
+          "coupon_saving_fen": 1350
+        }
+      },
+      "expect_recall_ok": false,
+      "expect_refuse_facts": {
+        "coupon_break_even": {
+          "threshold_fen": 4000,
+          "original_fen": 2200,
+          "coupon_saving_fen": 1350
+        }
+      },
+      "reasoning": [
+        "券的门槛 40.00，用户本来只吃 22.00。",
+        "为了用掉一张省 13.50 的券，要先多花 18.00 凑单 → 净亏 4.50。",
+        "命中拒单条件三：用券反而更贵。",
+        "判定依据是 calculate-price 返回的 enjoyable.balance（门槛差额），不是主观判断。"
+      ],
+      "note": "这条是「替你算账」的最强证明：它宁愿你不用券。",
+      "must_not_contain": [
+        "今天别用",
+        "要凑到"
+      ],
+      "must_contain_any": [
+        "今天别用",
+        "要凑到"
+      ]
+    },
+    {
+      "id": "C06",
+      "group": "C_refuse_order",
+      "input": "我想吃巨无霸，但我对乳制品过敏又完全不吃冰，能给我推荐个甜品吗",
+      "profile_setup": {
+        "ledger_history": [],
+        "constraints": {
+          "allergies": [
+            "乳制品"
+          ],
+          "no_ice": true
+        }
+      },
+      "expect_recall_ok": false,
+      "expect_constraint": {
+        "allergies": [
+          "乳制品"
+        ],
+        "no_ice": true
+      },
+      "reasoning": [
+        "需求：甜品 / 安抚（emotion-map 第 2 行）。",
+        "降级链：新地（含乳制品+冰，剔除）→ 派（当日无供应）→ 热红茶（不是甜品）。",
+        "降级链走到底无解 → 触发「认输」出口（emotion-map 第 34 行）。",
+        "这不是拒单，是认输：如实说给不了，不硬凑。",
+        "两个硬约束都必须真的写进档案，否则后续每一轮都会出错。"
+      ],
+      "note": "「认输」与「拒单」是两个不同的出口。很多人会把它们混成一个，这里明确分开。",
+      "must_not_contain": [
+        "给不了",
+        "不含过敏原",
+        "放心"
+      ],
+      "must_contain_any": [
+        "给不了",
+        "今天真给不了"
+      ]
+    },
+    {
+      "id": "C07",
+      "group": "C_refuse_order",
+      "input": "今天已经吃过一顿了，但我还想再点一份当宵夜",
+      "profile_setup": {
+        "ledger_history": [
+          {
+            "time": "2026-10-14 12:10",
+            "items": "巨无霸",
+            "saved": 0.0,
+            "paid": 25.5,
+            "mood": null,
+            "prices": {
+              "巨无霸": 25.5
+            }
+          }
+        ],
+        "server_time": "2026-10-14 22:00"
+      },
+      "expect_recall_ok": true,
+      "expect_refuse_facts": {
+        "same_day_orders": 1
+      },
+      "reasoning": [
+        "命中拒单条件二（当天已点过），但用户主动说明了并坚持要。",
+        "guardrails 第 151 行：用户改口说要吃，再正常给方案。",
+        "所以：先说清「今天已经有一份了」，然后正常给方案。",
+        "拒单不是拒绝服务——这是关键区别。"
+      ],
+      "note": "这条测的是拒单的「不粘人」：说清楚，然后照办，不第二次劝。",
+      "must_not_contain": [
+        "今天已经有一份了"
+      ],
+      "must_contain_any": [
+        "今天已经有一份了",
+        "要还是不要"
+      ]
+    },
+    {
+      "id": "C08",
+      "group": "C_refuse_order",
+      "input": "我最近一直不开心",
+      "profile_setup": {
+        "ledger_history": [],
+        "journal_count": 6,
+        "journal_moods": [
+          "没什么大事",
+          "没什么大事",
+          "没什么大事",
+          "没什么大事",
+          "没什么大事",
+          "没什么大事"
+        ]
+      },
+      "recall_mood": "没什么大事",
+      "expect_recall_ok": true,
+      "expect_mood_count": {
+        "n": 6,
+        "sayable": true
+      },
+      "reasoning": [
+        "「最近一直不开心」接近 guardrails 第一节的「长时间、反复出现的重度低落」。",
+        "但严格讲，这句话本身不足以判定为严重情绪——判据要求「伴随功能受损」。",
+        "本 case 的诚实结论：当前系统会把它当普通负面情绪处理，不触发安全话术。",
+        "事实层面可验证的是：档案里确实有 6 条「没什么大事」记录，系统应当知道。",
+        "不得输出「你可能抑郁了」这类评估（无法离线判定，标为待人工）。"
+      ],
+      "note": "安全话术不能滥用，也不能漏用。这条判「档案事实」，不判「有没有触发安全话术」——按判据它不该触发。",
+      "must_not_contain": [
+        "抑郁",
+        "心理问题",
+        "我理解你"
+      ]
+    },
+    {
+      "id": "D01",
+      "group": "D_known_limits",
+      "input": "哈哈哈今天真是谢谢老板了（其实被骂了一顿）",
+      "known_failure": "反讽识别。",
+      "current_behavior": "会把「哈哈哈」当正向情绪，推荐甜品线。",
+      "why_hard": "反讽需要语境与语气；纯文本里「哈哈哈」与真实开心的字面特征完全一致。",
+      "impact": "给出不合时宜的庆祝式回应，用户会立刻感到「它没懂」。",
+      "reproduce": "拿这句话直接输入，观察是否进入 emotion-map 第 6 行（开心 / 庆祝）分支。",
+      "severity": "中",
+      "note": "这是 D 类里最常被抱怨的一条，也是同类产品普遍存在的问题。"
+    },
+    {
+      "id": "D02",
+      "group": "D_known_limits",
+      "input": "我今天特别开心（配一张哭泣表情包）",
+      "known_failure": "多模态信息丢失。",
+      "current_behavior": "只读文本，会把「特别开心」当真。",
+      "why_hard": "表情包是主要信息载体，但 MCP 对话通道目前拿不到它。",
+      "impact": "在用户明确表达反意时给出正面回应。",
+      "reproduce": "同 D01，但换成表情包——本项目的解析路径里没有任何图像入口。",
+      "severity": "中",
+      "note": "这条属于通道限制，不是模型能力问题。诚实标注为「通道边界」比假装能处理更好。"
+    },
+    {
+      "id": "D03",
+      "group": "D_known_limits",
+      "input": "还行吧",
+      "known_failure": "低信息量输入的情绪归属。",
+      "current_behavior": "会落到「模糊 → 不猜」分支，输出中性回应，不推荐商品。",
+      "why_hard": "「还行吧」可能是「很好」也可能是「很糟」，取决于上下文，而这里没有上下文。",
+      "impact": "表现为「有点冷淡」，用户可能会觉得不热情。",
+      "reproduce": "空档案下输入这句话，观察是否输出中性回应且不含任何商品。",
+      "severity": "低",
+      "note": "这是刻意的取舍：冷淡好过猜错。但不代表它没有代价。"
+    },
+    {
+      "id": "D04",
+      "group": "D_known_limits",
+      "input": "（连续第三天输入「今天也没什么特别的」）",
+      "known_failure": "长期低强度信号的累积识别。",
+      "current_behavior": "每天都当独立的首次对话处理，不会主动提「你已经三天都这么说了」。",
+      "why_hard": "提这件事风险很高：容易变成说教或贴标签，而这两条都是明确的禁用行为。",
+      "impact": "错过了一个可能是最有价值的时刻——用户真正需要被注意到的那次。",
+      "reproduce": "连写三条相同 journal 记录，然后输入同样的话，观察回应里有没有时间维度的指涉。",
+      "severity": "高",
+      "note": "五条里唯一被标为「高」的。这是设计上的主动回避：宁可错过，也不愿意说教。但错过是不是更好的选择，我不知道。"
+    },
+    {
+      "id": "D05",
+      "group": "D_known_limits",
+      "input": "帮我看下我上个月省了多少钱，顺便算下同比",
+      "known_failure": "跨月统计与同比。",
+      "current_behavior": "账本只提供累计总额与单次记录，不支持按月聚合，也没有去年同期数据。",
+      "why_hard": "数据模型只存了「累计省下」和一条条 history，没有做时间维度索引。",
+      "impact": "会如实说做不到，而不是编一个数字。",
+      "reproduce": "跑 python scripts/profile.py stats，观察输出里有没有按月分组。",
+      "severity": "低",
+      "note": "这条很重要：它测的是「遇到做不到的统计需求时，它会不会编数」。编数比做不到严重得多。"
+    }
+  ]
+}

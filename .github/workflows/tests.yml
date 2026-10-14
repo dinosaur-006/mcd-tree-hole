@@ -37,3 +37,22 @@ jobs:
           python -m unittest discover -s tests -t . -v
           cd "${{ runner.temp }}"
           python "$GITHUB_WORKSPACE/tests/test_recall.py"
+
+  cases:
+    name: 判决集
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # 判决集判的是「系统掌握的事实」，不是「它说的话」。
+      # 有 FAIL 就退出码非零，这次提交就过不去。
+      - name: 判定
+        run: python cases/check.py
+
+      # 演示脚本也跑一遍：它不该崩，也不该碰到真实档案
+      - name: 演示脚本自检
+        run: python demo/demo.py --selftest
