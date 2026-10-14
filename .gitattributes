@@ -7,6 +7,11 @@
 *.yml  text eol=lf
 *.yaml text eol=lf
 
+# .ps1 必须保持 CRLF：Windows PowerShell 5.1 对 LF 结尾的脚本偶有解析问题。
+# 另外这个文件存的是「UTF-8 带 BOM」——git 不会增删 BOM，但要显式标成文本，
+# 否则被当二进制处理，diff 就不好看了。
+*.ps1  text eol=crlf
+
 # 二进制文件不做换行转换
 *.png  binary
 *.jpg  binary
