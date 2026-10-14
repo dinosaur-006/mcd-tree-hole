@@ -1,0 +1,80 @@
+{
+  "_note": "录制的真实 MCP 响应。取自 2026-10-12 对门店 storeCode=1450323（上海徐汇漕溪北路百脑汇餐厅，到店自取）的端到端实测记录，见 MCP_INTEGRATION.md 第五节。",
+  "_honesty": "这里只收录文档中已确证的数字。没有实测过的单品价格一律不编——这条规矩和产品本身一致：宁可少写，不许编造。",
+  "_store": {
+    "storeCode": "1450323",
+    "storeName": "上海徐汇漕溪北路百脑汇餐厅",
+    "orderType": "到店自取",
+    "businessHours": "06:30-23:00",
+    "capturedAt": "2026-10-12 20:47",
+    "scale": "返回 11 个分类、约 130 个在售 SKU"
+  },
+
+  "now-time-info": {
+    "serverTime": "2026-10-12 20:47",
+    "mealPeriod": "夜市"
+  },
+
+  "menu": {
+    "_note": "价格单位：分。带 priceSource 的为实测确证；其余为占位名目，价格不参与任何计算。",
+    "items": [
+      { "code": "1001", "name": "巨无霸", "priceFen": 2550, "priceSource": "实测：37.50 - 12.00（新地）推出", "tags": ["100%纯牛肉", "经典精选"] },
+      { "code": "1002", "name": "麦香鸡", "priceFen": null, "priceSource": "未单独实测", "tags": ["鸡肉"] },
+      { "code": "1003", "name": "双层吉士汉堡", "priceFen": null, "priceSource": "未单独实测", "tags": ["100%纯牛肉", "芝士"] },
+      { "code": "2002", "name": "中薯条", "priceFen": 1350, "priceSource": "实测：券价 13.50，原小计 27.00（两份）", "tags": ["经典精选"] },
+      { "code": "2003", "name": "中薯条买一送一", "priceFen": 1350, "priceSource": "实测：券价 13.50", "tags": ["限定特惠"] },
+      { "code": "3001", "name": "新地（巧克力）", "priceFen": 1200, "priceSource": "实测", "tags": ["冰淇淋"] },
+      { "code": "4001", "name": "黑洋酥小圆子风味派", "priceFen": 500, "priceSource": "实测（促销价）", "tags": ["派", "限定特惠"] },
+      { "code": "5003", "name": "热红茶", "priceFen": null, "priceSource": "未单独实测", "tags": ["热饮"] }
+    ],
+    "frequent": { "code": "1001", "tags": ["我的常点"] }
+  },
+
+  "query-store-coupons": {
+    "storeCode": "1450323",
+    "orderType": "到店自取",
+    "couponsReturned": 2,
+    "coupons": [
+      {
+        "couponId": "CPS-2026-1012-001",
+        "couponCode": "MCDSJ2026",
+        "title": "中薯条买一送一",
+        "productCode": "2003",
+        "validUntil": "2026-10-31"
+      }
+    ]
+  },
+
+  "calculate-price": {
+    "_note": "MCP 返回的金额单位是「分」。这里存的正是实测拿到的那三组，未经修饰。",
+    "verifiedCombos": [
+      {
+        "key": "combo_a",
+        "label": "巨无霸 + 麦香鸡 + 中薯条买一送一（用券）",
+        "items": ["巨无霸", "麦香鸡", "中薯条买一送一"],
+        "originalPriceFen": 6950,
+        "payPriceFen": 5600,
+        "savedFen": 1350,
+        "couponsUsed": 1
+      },
+      {
+        "key": "combo_b",
+        "label": "巨无霸 + 新地",
+        "items": ["巨无霸", "新地（巧克力）"],
+        "originalPriceFen": 3750,
+        "payPriceFen": 3750,
+        "savedFen": 0,
+        "couponsUsed": 0
+      },
+      {
+        "key": "combo_c",
+        "label": "巨无霸 + 黑洋酥小圆子风味派（促销价）",
+        "items": ["巨无霸", "黑洋酥小圆子风味派"],
+        "originalPriceFen": 3550,
+        "payPriceFen": 3050,
+        "savedFen": 500,
+        "couponsUsed": 0
+      }
+    ]
+  }
+}
